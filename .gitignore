@@ -1,0 +1,7 @@
+/.idea/
+/node_modules/
+/.history/
+/.lh/
+*/yarn-error.log
+/dist
+/build
