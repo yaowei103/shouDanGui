@@ -58,6 +58,11 @@ html,body{
   width: 100%;
 }
 
+.ant-table-thead > tr > .ant-table-cell, .ant-table-tbody > tr > .ant-table-cell{
+  vertical-align: middle;
+  text-align: center;
+}
+
 .ant-table-cell img {
   width: 160px;
 }
@@ -79,4 +84,8 @@ html,body{
 
 [data-theme='dark'] .editable-row:hover .editable-cell-value-wrap {
   border: 1px solid #434343;
+}
+
+.ant-modal-content{
+  overflow: hidden;
 }
