@@ -1,141 +1,89 @@
 import React, { FC, useState } from 'react';
-import { Modal, Table, Button, Input } from 'antd';
+import { Modal, Table, Button, Input, message } from 'antd';
 import { useLocation } from 'react-router-dom';
 import styles from './index.less';
-// import EditTableTable from '../../components/EditableTable';
+import { openAndScan } from '@/components/pagerScanner';
+import { sendImage } from '@/service/api';
 
 const { Column, ColumnGroup } = Table;
 
 const Detail: FC = () => {
-  const location = useLocation();
+  const location: any = useLocation();
+  const { empId, orderId, orderNum } = location.state;
   console.log('statlocatione:', location);
 
-  const [visible, setVisible] = React.useState(true);
-  const [confirmLoading, setConfirmLoading] = React.useState(false);
+  const [visible, setVisible] = useState(true);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [paperUrls, setPaperUrls] = useState([]);
+
+  const modalMsgInit = '请将单据整理好，带有二维码的封面放在第一页，然后封面朝下放入收单柜。';
+  const [modalMsg, setModalMsg] = useState(modalMsgInit)
 
   const dataSource = [
     { id: 'DJ1111111122', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
     { id: 'DJ1111111133', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ1111111144', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ1111111155', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ1111111166', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ1111111177', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ1111111188', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ1111111199', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ1111111101', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ1111111111', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ1111111112', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ1111111113', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ1111111114', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ11111111215', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ11111111216', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ11111111217', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ11111111218', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ11111111219', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ11111111220', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ11111111221', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ11111111222', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ11111111223', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ11111111224', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ11111111225', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ11111111226', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ11111111227', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ11111111228', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ11111111229', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ11111111230', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ11111111231', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ11111111232', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ11111111233', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
-    { id: 'DJ11111111234', b: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%253A%252F%252Fdingyue.ws.126.net%252F2021%252F0716%252F149a58c6p00qwbvjw0017c000gj008fm.png%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1636038525&t=a1a04c7e827f4e2131d9ef0a30447fac', c: '1234567890', d: 1234567890, e: '200', f: 'BJ12345', g: 1234567, h: 200 },
   ];
 
   const [state, setState] = useState({
     dataSource
   });
 
-  // const columns = [
-  //   {
-  //     title: '图片',
-  //     dataIndex: 'b',
-  //     key: 'b',
-  //     width: 120,
-  //     render: (text: any, record: any, index: number) => {
-  //       return <img src={record.b} />
-  //     },
-  //   },
-  //   {
-  //     title: '流水号',
-  //     dataIndex: 'id',
-  //     key: 'id',
-  //   },
-  //   {
-  //     title: '发票号',
-  //     width: 250,
-  //     dataIndex: 'c',
-  //     key: 'c',
-  //   },
-  //   {
-  //     title: '代码',
-  //     dataIndex: 'd',
-  //     key: 'd',
-  //   },
-  //   {
-  //     title: '金额',
-  //     dataIndex: 'e',
-  //     key: 'e',
-  //   },
-  //   {
-  //     title: '发票号',
-  //     width: 250,
-  //     dataIndex: 'f',
-  //     key: 'f',
-  //     editable: true,
-  //     // onCell: (record: any) => {
-  //     //   debugger;
-  //     //   return {
-  //     //     record,
-  //     //     editable: true,
-  //     //     dataIndex: 'f',
-  //     //     // title: col.,
-  //     //     handleSave: handleSave,
-  //     //   };
-  //     // }
-  //   },
-  //   {
-  //     title: '代码',
-  //     dataIndex: 'g',
-  //     key: 'g',
-  //     editable: true,
-  //   },
-  //   {
-  //     title: '金额',
-  //     dataIndex: 'h',
-  //     key: 'h',
-  //     editable: true,
-  //   },
-  // ];
-
-  // const handleSave = (row: any) => {
-  //   const newData = [...state.dataSource];
-  //   const index = newData.findIndex((item: any) => row.key === item.key);
-  //   const item = newData[index];
-  //   newData.splice(index, 1, {
-  //     ...item,
-  //     ...row,
-  //   });
-  //   setState({ dataSource: newData });
-  // };
-
   const handleSubmit = () => {
     const submitData = state.dataSource;
     console.log('submitData:', submitData);
   };
 
-  const handleModalOk = () => {
+  const scanPapers: any = async () => {
+    const scr = new window.BOCardReader({ "device": 'SCR' });
+    scr.on('onScanPage', (res: any) => {
+      const {
+        back_image,
+        // back_image_height,
+        // back_image_width, 
+        // dpi, 
+        front_image,
+        // front_image_height, 
+        // front_image_width, 
+        // device = 'SCR'
+      } = res;
+      console.log('正面图片路径', front_image);
+      console.log('反面图片路径', back_image);
+      const oldUrls: any = [...paperUrls, back_image];
+      setPaperUrls(oldUrls);
+    });
+    const openAndScanResult = await openAndScan(scr);
+    if (openAndScanResult.result === 0) {
+      message.success('扫描完成, 正在识别您的单据');
+      return true;
+    } else {
+      message.error('扫描出错，请整理好单据，重新放入扫描窗口再次扫描');
+      return false;
+    }
+  };
+
+  const handleModalOk = async () => {
     setConfirmLoading(true);
     if (confirmLoading) {
       return;
     }
+    // 扫描
+    const scanPaperResult = await scanPapers();
+    if (scanPaperResult) {
+      // 扫描成功，通过api获取识别结果
+      setModalMsg('扫描完成，正在识别您的单据，请耐心等待！');
+      console.log('扫描完成，正在识别您的单据，请耐心等待！');
+      const sendImageResult: any = sendImage(empId, orderId, orderNum);
+      console.log('识别图片完成：', sendImageResult);
+      if (sendImageResult.status === 200) {
+        setConfirmLoading(false);
+        setVisible(false);
+      }
+    } else {
+      setModalMsg('扫描出错，请将单据整理好，重新放入扫描窗口，并点击确定重新扫描！');
+      setConfirmLoading(false);
+    }
+
+
     setTimeout(() => {
       setConfirmLoading(false);
       setVisible(false);
@@ -151,7 +99,6 @@ const Detail: FC = () => {
     console.log('val, field, i', val, field, i);
     const newDataSource = state.dataSource;
     newDataSource[i][field] = val;
-    debugger;
     setState({
       dataSource: newDataSource
     })
@@ -243,7 +190,7 @@ const Detail: FC = () => {
         centered // 垂直居中
       >
         <p className={styles.tipContent}>
-          请将单据整理好，带有二维码的封面放在第一页，然后封面朝下放入收单柜。
+          {modalMsg}
         </p>
       </Modal>
     </div>

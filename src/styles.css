@@ -32,6 +32,14 @@ html,body{
 .ant-tabs-nav-list {
   border-bottom: 1px solid #70a6d5;
 }
+
+.ant-tabs-tab + .ant-tabs-tab{
+  margin: 0 62px
+}
+.ant-tabs-tab{
+  margin: 0 62px
+}
+
 .ant-tabs-tab .ant-tabs-tab-btn {
   font-size: 18px;
   color: #1166c0;

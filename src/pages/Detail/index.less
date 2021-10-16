@@ -1,18 +1,11 @@
+@import "../../components/common/common.less";
+
 .detail {
   height: 100%;
   display:flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  .header {
-    width: 100%;
-    background: #dddddd;
-    color: #1165c0;
-    border-bottom: 5px solid #1165c0;
-    font-size: 25px;
-    padding: 25px 0;
-    text-align: center;
-  }
   .body{
     flex-grow: 1;
     height: calc(100% - 100px);
@@ -23,6 +16,7 @@
     width: 80%;
     min-width: 1170px;
     .userInfo {
+      width: 100%;
       margin-top: 20px;
       padding: 25px 30px;
       background: #ddd;
@@ -41,24 +35,10 @@
       margin-top: 20px;
     }
     .btnContainer{
+      width: 100%;
       margin-top: 20px;
       display: flex;
       justify-content: flex-end;
     }
   }
-  .footer{
-    width: 100%;
-    font-size: 15px;
-    color: #333;
-    text-align: center;
-    padding: 5px 0;
-    background: #f2f2f2;
-  }
-}
-
-.tipContent {
-  min-height: 250px;
-  font-size: 20px;
-  padding: 70px 0;
-  text-align: center;
 }

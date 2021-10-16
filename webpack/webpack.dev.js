@@ -45,7 +45,7 @@ module.exports = smart(webpackCommonConf, {
   ],
   devServer: {
     // host:'10.108.87.14',
-    port: 8080,
+    port: 3000,
     progress: true, // 显示打包的进度条
     contentBase: distPath, // 根目录
     open: true, // 自动打开浏览器

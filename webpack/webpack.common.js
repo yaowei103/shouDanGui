@@ -60,7 +60,10 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js', '.jsx', '.css', '.scss', '.less']
+    extensions: ['.tsx', '.ts', '.js', '.jsx', '.css', '.scss', '.less'],
+    alias: {
+      '@': path.resolve(__dirname, '../src'),
+    }
   },
   plugins: [
     new HtmlWebpackPlugin({

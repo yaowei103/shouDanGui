@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import { Form, Input, Button, Row, Col, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
-import { openAndReadResult, test } from '../../components/boCard';
+import { openAndReadResult, testOpenAndReadResult } from '@/components/boCard';
 
 // import { Link } from "react-router-dom";
 
@@ -14,18 +14,23 @@ const { TabPane } = Tabs;
 const Login: FC = () => {
   const history = useHistory();
   const [currentTab, setCurrentTab] = useState<string>('1');
-  const appId = '';
+  // const AppKey = 'dingdsldijwnccbqy4xj';
+  const AppSecret = 'jS93tWpbVnGqjxJ8YgI5P4whqbL5iuoY2GBMXAHTUA-UUJ1DAq-XdwpWWSHXvQPH';
 
   const handleReadResultMsg = async (result: any) => {
     // 读卡成功，将信息发送给后端；
     console.log('将读卡信息发送给后端', result);
+    //登录成功跳转页面
+    message.success('登录成功');
+    setTimeout(() => {
+      history.push(`/list`, {});
+    }, 1000)
   };
 
   const handleTabChange = async (tab: string) => {
     setCurrentTab(tab);
-    if (tab === '4') {
-      const readResult: any = await test();
-      debugger;
+    if (tab === '3') {
+      const readResult: any = await testOpenAndReadResult();
       if (readResult.result === 0) {
         message.success('读卡成功');
         handleReadResultMsg(readResult);
@@ -45,16 +50,15 @@ const Login: FC = () => {
       const loginTmpCode = event.data;
       //获取到loginTmpCode后就可以在这里构造跳转链接进行跳转了
       console.log("loginTmpCode", loginTmpCode);
-      window.location.href = `https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid=${appId}&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=REDIRECT_URI&loginTmpCode=${loginTmpCode}`;
+      window.location.href = `https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid=${AppSecret}&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=REDIRECT_URI&loginTmpCode=${loginTmpCode}`;
     }
   };
 
   useEffect(() => {
     const dingdingEle = document.querySelector('#dingdingCode');
-    console.log('dingdingEle', dingdingEle);
     if (dingdingEle) {
       const url = encodeURIComponent('http://localhost:8080/index?test=1&aa=2');
-      const goto = encodeURIComponent('https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid=SuiteKey&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=' + url)
+      const goto = encodeURIComponent(`https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid=${AppSecret}&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=${url}`)
       window.DDLogin({
         id: "dingdingCode",//这里需要你在自己的页面定义一个HTML标签并设置id，例如<div id="login_container"></div>或<span id="login_container"></span>
         goto: goto, //请参考注释里的方式
@@ -76,51 +80,52 @@ const Login: FC = () => {
     };
   }, [currentTab]);
 
-  const renderUsernamePassword = () => {
-    const [form] = Form.useForm();
-    const onFinish = (values: any) => {
-      console.log('user name password logon:', values);
-      history.push(`/list`, {});
-    };
+  // const renderUsernamePassword = () => {
+  //   const [form] = Form.useForm();
+  //   const onFinish = (values: any) => {
+  //     console.log('user name password logon:', values);
+  //     history.push(`/list`, {});
+  //   };
 
-    return (
-      <Form
-        form={form}
-        name="normal_login"
-        className="login-form"
-        initialValues={{ remember: true }}
-        onFinish={onFinish}
-      >
-        <Form.Item
-          name="username"
-          rules={[{ required: true, message: '请输入用户名!' }]}
-        >
-          <Input size="large" prefix={<UserOutlined className="site-form-item-icon" />} placeholder="请输入用户名" />
-        </Form.Item>
-        <Form.Item
-          name="password"
-          rules={[{ required: true, message: '请输入密码!' }]}
-        >
-          <Input
-            prefix={<LockOutlined className="site-form-item-icon" />}
-            size="large"
-            type="password"
-            placeholder="请输入密码"
-          />
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit" size="large" className="login-form-button">
-            登录
-          </Button>
-        </Form.Item>
-      </Form>
-    );
-  };
+  //   return (
+  //     <Form
+  //       form={form}
+  //       name="normal_login"
+  //       className="login-form"
+  //       initialValues={{ remember: true }}
+  //       onFinish={onFinish}
+  //     >
+  //       <Form.Item
+  //         name="username"
+  //         rules={[{ required: true, message: '请输入用户名!' }]}
+  //       >
+  //         <Input size="large" prefix={<UserOutlined className="site-form-item-icon" />} placeholder="请输入用户名" />
+  //       </Form.Item>
+  //       <Form.Item
+  //         name="password"
+  //         rules={[{ required: true, message: '请输入密码!' }]}
+  //       >
+  //         <Input
+  //           prefix={<LockOutlined className="site-form-item-icon" />}
+  //           size="large"
+  //           type="password"
+  //           placeholder="请输入密码"
+  //         />
+  //       </Form.Item>
+  //       <Form.Item>
+  //         <Button type="primary" htmlType="submit" size="large" className="login-form-button">
+  //           登录
+  //         </Button>
+  //       </Form.Item>
+  //     </Form>
+  //   );
+  // };
 
   const renderPhoneMsg = () => {
     const [form] = Form.useForm();
     const onFinish = (values: any) => {
       console.log('Received values of form: ', values);
+      history.push(`/list`, {});
     };
 
     const getPhoneMsg = async () => {
@@ -174,19 +179,19 @@ const Login: FC = () => {
 
   return (
     <div className={styles.login}>
-      <div className={styles.header}>纳铁福只能收单柜</div>
+      <div className={styles.header}>SDS智能收单柜</div>
       <div className={styles.body}>
         <Tabs className={styles.tabContainer} defaultActiveKey={currentTab} onChange={handleTabChange}>
           <TabPane className={classnames(styles.panel, styles.dingdingPanel)} tab="钉钉登录" key="1">
             <div className={styles.dingdingCode} id="dingdingCode" />
           </TabPane>
-          <TabPane className={classnames(styles.panel, styles.usernamePanel)} tab="用户名密码登录" key="2">
+          {/* <TabPane className={classnames(styles.panel, styles.usernamePanel)} tab="用户名密码登录" key="2">
             {renderUsernamePassword()}
-          </TabPane>
-          <TabPane className={classnames(styles.panel, styles.phoneMsgPanel)} tab="手机验证码登录" key="3">
+          </TabPane> */}
+          <TabPane className={classnames(styles.panel, styles.phoneMsgPanel)} tab="手机验证码登录" key="2">
             {renderPhoneMsg()}
           </TabPane>
-          <TabPane className={classnames(styles.panel, styles.cardPanel)} tab="刷卡登录" key="4">
+          <TabPane className={classnames(styles.panel, styles.cardPanel)} tab="刷卡登录" key="3">
             请刷卡
           </TabPane>
         </Tabs>

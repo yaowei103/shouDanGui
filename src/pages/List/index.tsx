@@ -1,60 +1,53 @@
-import React, { FC } from 'react';
-import { Table, Button } from 'antd';
+import React, { FC, useEffect, useState } from 'react';
+import { Table, Button, message } from 'antd';
 // import { Link } from 'react-router-dom';
 import { useHistory } from 'react-router-dom';
+import { getList } from '@/service/api';
 import styles from './index.less';
 
 const List: FC = () => {
   const history = useHistory();
-  const dataSource = [
-    { id: 'DJ111111111', b: 200, c: '出差火车票', d: 200, e: '2021-11-01', f: 3 },
-    { id: 'DJ111111112', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ111111113', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ111111114', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ111111115', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ111111116', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ111111117', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ111111118', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ111111119', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ111111110', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ1111111111', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ1111111112', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ1111111113', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ1111111114', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ11111111215', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ11111111216', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ11111111217', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ11111111217', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ11111111219', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ11111111220', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ11111111221', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ11111111222', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ11111111223', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ11111111224', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ11111111225', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ11111111226', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ11111111227', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ11111111228', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ11111111229', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ11111111230', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ11111111231', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ11111111232', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ11111111233', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-    { id: 'DJ11111111234', b: 300, c: '出差飞机票', d: 300, e: '2021-11-02', f: 2 },
-
+  const dataSource: any[] = [
+    // {
+    //   "billno": "TEP202109140002",
+    //   "col1": "",
+    //   "col2": "",
+    //   "col3": "",
+    //   "col4": "",
+    //   "col5": "",
+    //   "expman": "A2219-吴向前",
+    //   "expmoney": 2459.0,
+    //   "invmoney": 2459.0,
+    //   "invnums": 3,
+    //   "reqdate": "2021-10-09",
+    //   "sid": "402847407be1c41e017be2b0e62c0075"
+    // }
   ];
+  const [dataList, setDataList] = useState(dataSource);
+
+  const getDataList = async () => {
+    const res = await getList('A2219');
+    if (res && res.code === 200) {
+      setDataList(res.data.atreturn || []);
+    } else {
+      message.error('列表请求错误!');
+    }
+  }
+  useEffect(() => {
+    getDataList();
+  }, []);
 
   const columns = [
     {
       title: '单据号',
-      dataIndex: 'id',
-      key: 'id',
+      dataIndex: 'billno',
+      key: 'billno',
       width: 120,
     },
     {
       title: '报销金额',
-      dataIndex: 'b',
-      key: 'b',
+      dataIndex: 'expmoney',
+      key: 'expmoney',
     },
     {
       title: '名称',
@@ -64,18 +57,18 @@ const List: FC = () => {
     },
     {
       title: '发票金额',
-      dataIndex: 'd',
-      key: 'd',
+      dataIndex: 'invmoney',
+      key: 'invmoney',
     },
     {
       title: '申请日期',
-      dataIndex: 'e',
-      key: 'e',
+      dataIndex: 'reqdate',
+      key: 'reqdate',
     },
     {
       title: '发票数量',
-      dataIndex: 'f',
-      key: 'f',
+      dataIndex: 'invnums',
+      key: 'invnums',
     },
     {
       title: '操作',
@@ -96,17 +89,18 @@ const List: FC = () => {
   };
   const renderTable = () => {
     return (
-      <Table rowKey={(record) => record.id} dataSource={dataSource} columns={columns} pagination={false} scroll={{ x: 'max-content', y: 650 }} />
+      <Table rowKey={(record) => record.billno} dataSource={dataList} columns={columns} pagination={false} scroll={{ x: 'max-content', y: 650 }} />
     );
   };
 
+  const [emplyeeId = '', emplyeeName = ''] = dataList[0] && dataList[0].expman.split('-') || [];
   return (
     <div className={styles.list}>
       <div className={styles.header}>纳铁福只能收单柜</div>
       <div className={styles.body}>
         <div className={styles.userInfo}>
-          <div className={styles.infoItem}>姓名：<span className={styles.infoVal}>张三</span></div>
-          <div className={styles.infoItem}>工号：<span className={styles.infoVal}>123456789</span></div>
+          <div className={styles.infoItem}>姓名：<span className={styles.infoVal}>{emplyeeName}</span></div>
+          <div className={styles.infoItem}>工号：<span className={styles.infoVal}>{emplyeeId}</span></div>
         </div>
         <div className={styles.table}>
           {renderTable()}
