@@ -67,12 +67,18 @@ module.exports = smart(webpackCommonConf, {
         oneOf: [
           {
             test: /\.css$/,
-            loader: ['style-loader', 'css-loader', 'postcss-loader'] // 加了 postcss
+            loader: [
+              // MiniCssExtractPlugin.loader,
+              'style-loader',
+              'css-loader',
+              'postcss-loader'
+            ] // 加了 postcss
           },
           {
             test: /\.less$/,
             exclude: /node_modules\.(css|less)/,
             use: [
+              // MiniCssExtractPlugin.loader,
               require.resolve('style-loader'),
               {
                 loader: require.resolve('css-loader'),
@@ -106,17 +112,17 @@ module.exports = smart(webpackCommonConf, {
     }),
 
     // 抽离 css 文件
-    // new MiniCssExtractPlugin({
-    //   filename: 'css/main.[contentHash:8].css'
-    // }),
+    new MiniCssExtractPlugin({
+      filename: 'css/main.[contentHash:8].css'
+    }),
 
     // happyPack 开启多进程打包
-    // new HappyPack({
-    //   // 用唯一的标识符 id 来代表当前的 HappyPack 是用来处理一类特定的文件
-    //   id: 'babel',
-    //   // 如何处理 .js 文件，用法和 Loader 配置中一样
-    //   loaders: ['babel-loader?cacheDirectory']
-    // }),
+    new HappyPack({
+      // 用唯一的标识符 id 来代表当前的 HappyPack 是用来处理一类特定的文件
+      id: 'babel',
+      // 如何处理 .js 文件，用法和 Loader 配置中一样
+      loaders: ['babel-loader']
+    }),
 
     // 使用 ParallelUglifyPlugin 并行压缩输出的 JS 代码
     // new ParallelUglifyPlugin({
@@ -124,7 +130,7 @@ module.exports = smart(webpackCommonConf, {
     //   // （还是使用 UglifyJS 压缩，只不过帮助开启了多进程）
     //   uglifyJS: {
     //     output: {
-    //       beautify: false, // 最紧凑的输出
+    //       beautify: true, // 最紧凑的输出
     //       comments: false, // 删除所有的注释
     //     },
     //     compress: {
@@ -134,46 +140,46 @@ module.exports = smart(webpackCommonConf, {
     //       collapse_vars: true,
     //       // 提取出出现多次但是没有定义成变量去引用的静态值
     //       reduce_vars: true,
-    //     }
+    //     },
     //   }
     // })
   ],
 
-  // optimization: {
-  //   // 压缩 css
-  //   minimizer: [
-  //     // new TerserJSPlugin({}),
-  //     // new OptimizeCSSAssetsPlugin({})
-  //   ],
+  optimization: {
+    //   // 压缩 css
+    minimizer: [
+      new TerserJSPlugin({}),
+      new OptimizeCSSAssetsPlugin({})
+    ],
 
-  //   // 分割代码块
-  //   splitChunks: {
-  //     chunks: 'all',
-  //     /**
-  //            * initial 入口chunk，对于异步导入的文件不处理
-  //               async 异步chunk，只对异步导入的文件处理
-  //               all 全部chunk
-  //            */
+    //   // 分割代码块
+    splitChunks: {
+      chunks: 'all',
+      /**
+      * initial 入口chunk，对于异步导入的文件不处理
+        async 异步chunk，只对异步导入的文件处理
+        all 全部chunk
+      */
 
-  //     // 缓存分组
-  //     cacheGroups: {
-  //       // 第三方模块
-  //       vendor: {
-  //         name: 'vendor', // chunk 名称
-  //         priority: 1, // 权限更高，优先抽离
-  //         test: /node_modules/,
-  //         minSize: 0, // 大小限制
-  //         minChunks: 1 // 最少复用过几次
-  //       },
+      // 缓存分组
+      cacheGroups: {
+        // 第三方模块
+        vendor: {
+          name: 'vendor', // chunk 名称
+          priority: 1, // 权限更高，优先抽离
+          test: /node_modules/,
+          minSize: 0, // 大小限制
+          minChunks: 1 // 最少复用过几次
+        },
 
-  //       // 公共的模块
-  //       common: {
-  //         name: 'common', // chunk 名称
-  //         priority: 0, // 优先级
-  //         minSize: 0, // 公共模块的大小限制
-  //         minChunks: 2 // 公共模块最少复用过几次
-  //       }
-  //     }
-  //   }
-  // }
-})
+        // 公共的模块
+        common: {
+          name: 'common', // chunk 名称
+          priority: 0, // 优先级
+          minSize: 0, // 公共模块的大小限制
+          minChunks: 1 // 公共模块最少复用过几次
+        }
+      }
+    }
+  }
+});

@@ -53,7 +53,7 @@ const Detail: FC = () => {
   };
 
   const scanPapers: any = async () => {
-    const scr = new window.BOCardReader({ "device": 'SCR' });
+    const scr = new BOScanner({ "device": 'SCR' });
     scr.on('onScanPage', (res: any) => {
       const {
         back_image,

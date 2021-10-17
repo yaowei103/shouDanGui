@@ -14,13 +14,14 @@ module.exports = {
     rules: [
       {
         test: /\.(ts|tsx)$/,
-        loader: 'ts-loader',
-        include: srcPath
+        loader: ['babel-loader'], //, 'ts-loader'
+        // include: srcPath,
+        // exclude: /node_modules/
       },
       // babel-loader
       {
         test: /\.(js|jsx)$/,
-        loader: ['babel-loader?cacheDirectory'], // 开启缓存
+        loader: ['babel-loader'], // 开启缓存
         include: srcPath
         // exclude: /node_modules/
       },
@@ -67,8 +68,9 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: path.join(srcPath, 'index.html'),
-      filename: 'index.html'
+      template: path.resolve(__dirname, '../public/index.html'),
+      filename: 'index.html',
+      publicPath: process.env.NODE_ENV === 'development' ? '/' : '/shouDanGui/'
     }),
     new vConsolePlugin({
       enable: true

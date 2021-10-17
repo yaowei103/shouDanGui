@@ -8,20 +8,20 @@ import styles from './index.less';
 const List: FC = () => {
   const history = useHistory();
   const dataSource: any[] = [
-    // {
-    //   "billno": "TEP202109140002",
-    //   "col1": "",
-    //   "col2": "",
-    //   "col3": "",
-    //   "col4": "",
-    //   "col5": "",
-    //   "expman": "A2219-吴向前",
-    //   "expmoney": 2459.0,
-    //   "invmoney": 2459.0,
-    //   "invnums": 3,
-    //   "reqdate": "2021-10-09",
-    //   "sid": "402847407be1c41e017be2b0e62c0075"
-    // }
+    {
+      "billno": "TEP202109140002",
+      "col1": "",
+      "col2": "",
+      "col3": "",
+      "col4": "",
+      "col5": "",
+      "expman": "A2219-吴向前",
+      "expmoney": 2459.0,
+      "invmoney": 2459.0,
+      "invnums": 3,
+      "reqdate": "2021-10-09",
+      "sid": "402847407be1c41e017be2b0e62c0075"
+    }
   ];
   const [dataList, setDataList] = useState(dataSource);
 

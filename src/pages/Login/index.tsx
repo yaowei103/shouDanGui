@@ -30,16 +30,18 @@ const Login: FC = () => {
   const handleTabChange = async (tab: string) => {
     setCurrentTab(tab);
     if (tab === '3') {
-      const readResult: any = await testOpenAndReadResult();
-      if (readResult.result === 0) {
+      const pidc = new BOCardReader({ "device": 'PIDC' });
+      console.log('开始读卡');
+      const readResult: any = await openAndReadResult(pidc);
+      console.log('读卡器result', readResult);
+      if (readResult && readResult.result === 0) {
         message.success('读卡成功');
         handleReadResultMsg(readResult);
       } else {
         message.error('读卡错误，请重试！');
       }
-      // const pidc = new window.BOCardReader({ "device": 'PIDC' });
       // openPIDC(pidc);
-      console.log(openAndReadResult);
+      console.log(testOpenAndReadResult);
     }
   };
 

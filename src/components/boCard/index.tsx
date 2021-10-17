@@ -1,14 +1,19 @@
 
+import { message } from 'antd';
 
-export const openPIDC: any = async (pidc: any) => {
+
+export const openPIDC: any = async (pidc: any, maxTimes: any | undefined = 10) => {
   var result = await pidc.openDevice();
   console.log(JSON.stringify(result));
   if (result.result == 0) {
     console.log("打开读卡器成功");
     return result;
+  } else if (maxTimes <= 0 && result.result === -1) {
+    message.error('读卡器错误，请联系管理员');
+    return result;
   } else {
-    console.log("openPIDC()发生错误:", result.message, '正在重新打开');
-    return await openPIDC(pidc);
+    console.log("openPIDC()发生错误:", result.message, `正在第${11 - maxTimes}次重新打开`);
+    return await openPIDC(pidc, maxTimes - 1);
   }
 }
 
