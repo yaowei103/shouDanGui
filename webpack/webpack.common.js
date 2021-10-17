@@ -1,6 +1,7 @@
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const vConsolePlugin = require('vconsole-webpack-plugin'); // 页面打印
+const CopyPlugin = require('copy-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const {
   srcPath
@@ -14,14 +15,14 @@ module.exports = {
     rules: [
       {
         test: /\.(ts|tsx)$/,
-        loader: ['babel-loader'], //, 'ts-loader'
+        loader: 'babel-loader', //, 'ts-loader'
         // include: srcPath,
         // exclude: /node_modules/
       },
       // babel-loader
       {
         test: /\.(js|jsx)$/,
-        loader: ['babel-loader'], // 开启缓存
+        loader: 'babel-loader', // 开启缓存
         include: srcPath
         // exclude: /node_modules/
       },
@@ -29,13 +30,19 @@ module.exports = {
         oneOf: [
           {
             test: /\.css$/,
-            loader: ['style-loader', 'css-loader', 'postcss-loader'] // 加了 postcss
+            use: [
+              MiniCssExtractPlugin.loader,
+              // 'style-loader',
+              'css-loader',
+              // 'postcss-loader'
+            ] // 加了 postcss
           },
           {
             test: /\.less$/,
             exclude: /node_modules\.(css|less)/,
             use: [
-              require.resolve('style-loader'),
+              MiniCssExtractPlugin.loader,
+              // require.resolve('style-loader'),
               {
                 loader: require.resolve('css-loader'),
                 options: {
@@ -67,13 +74,15 @@ module.exports = {
     }
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, '../public/index.html'),
-      filename: 'index.html',
-      publicPath: process.env.NODE_ENV === 'development' ? '/' : '/shouDanGui/'
-    }),
     new vConsolePlugin({
       enable: true
-    })
+    }),
+
+    new CopyPlugin({
+      patterns: [
+        { from: path.resolve(__dirname, '../public/utils'), to: "utils/" },
+      ],
+    }),
+
   ]
 }

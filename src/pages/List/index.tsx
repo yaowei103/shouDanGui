@@ -27,7 +27,7 @@ const List: FC = () => {
 
   const getDataList = async () => {
     const res = await getList('A2219');
-    if (res && res.code === 200) {
+    if (res?.code === 200) {
       setDataList(res.data.atreturn || []);
     } else {
       message.error('列表请求错误!');

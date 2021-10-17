@@ -1,6 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
-const { smart } = require('webpack-merge');
+const { merge } = require('webpack-merge');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserJSPlugin = require('terser-webpack-plugin');
@@ -11,13 +11,14 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpackCommonConf = require('./webpack.common.js');
 const { srcPath, distPath } = require('./paths');
 
+process.env.ENV = 'production';
 const webRoot = '/shouDanGui/';
 
-module.exports = smart(webpackCommonConf, {
+module.exports = merge(webpackCommonConf, {
   mode: 'production',
   output: {
     // filename: 'bundle.[contentHash:8].js',  // 打包代码时，加上 hash 戳
-    filename: 'js/[name].[contentHash:8].js', // name 即多入口时 entry 的 key
+    filename: 'js/[name].[hash].js', // name 即多入口时 entry 的 key
     path: distPath,
     // publicPath: 'http://cdn.abc.com'  // 修改所有静态文件 url 的前缀（如 cdn 域名），这里暂时用不到
     publicPath: webRoot
@@ -36,85 +37,26 @@ module.exports = smart(webpackCommonConf, {
 
             // 打包到 img 目录下
             outputPath: '/img1/',
-
-            // 设置图片的 cdn 地址（也可以统一在外面的 output 中设置，那将作用于所有静态资源）
-            // publicPath: 'http://cdn.abc.com'
           }
         }
-      },
-      // 抽离 css
-      // {
-      //   test: /\.css$/,
-      //   loader: [
-      //     // MiniCssExtractPlugin.loader, // 注意，这里不再用 style-loader
-      //     'style-loader',
-      //     'css-loader',
-      //     'postcss-loader'
-      //   ]
-      // },
-      // // 抽离 less
-      // {
-      //   test: /\.less$/,
-      //   loader: [
-      //     // MiniCssExtractPlugin.loader, // 注意，这里不再用 style-loader
-      //     'style-loader',
-      //     'css-loader',
-      //     'less-loader',
-      //     // 'postcss-loader'
-      //   ]
-      // }
-      {
-        oneOf: [
-          {
-            test: /\.css$/,
-            loader: [
-              // MiniCssExtractPlugin.loader,
-              'style-loader',
-              'css-loader',
-              'postcss-loader'
-            ] // 加了 postcss
-          },
-          {
-            test: /\.less$/,
-            exclude: /node_modules\.(css|less)/,
-            use: [
-              // MiniCssExtractPlugin.loader,
-              require.resolve('style-loader'),
-              {
-                loader: require.resolve('css-loader'),
-                options: {
-                  importLoaders: 1,
-                  modules: true,
-                },
-              },
-              {
-                loader: require.resolve('less-loader'), // compiles Less to LESS
-                options: {
-                  importLoaders: 2,
-                  modules: true,
-                  getLocalIdent: (context, localIdentName, localName, options) => {
-                    return `${localName}_${hash[8]}`;
-                  },
-                },
-              },
-            ],
-          },
-
-        ]
       },
     ]
   },
   plugins: [
-    new CleanWebpackPlugin(), // 会默认清空 output.path 文件夹
-    new webpack.DefinePlugin({
-      ENV: JSON.stringify('production'),
-      WEB_ROOT: JSON.stringify(webRoot),
-    }),
-
     // 抽离 css 文件
     new MiniCssExtractPlugin({
-      filename: 'css/main.[contentHash:8].css'
+      filename: 'css/main.[name].[hash].css'
     }),
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, '../public/index.html'),
+      filename: 'index.html',
+      publicPath: process.env.ENV === 'development' ? '/' : '/shouDanGui/'
+    }),
+    new CleanWebpackPlugin(), // 会默认清空 output.path 文件夹
+    // new webpack.DefinePlugin({
+    //   ENV: JSON.stringify('production'),
+    //   WEB_ROOT: JSON.stringify(webRoot),
+    // }),
 
     // happyPack 开启多进程打包
     new HappyPack({
