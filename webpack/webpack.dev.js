@@ -1,5 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const webpackCommonConf = require('./webpack.common.js');
 const {
   merge
@@ -29,6 +30,10 @@ module.exports = merge(webpackCommonConf, {
   },
 
   plugins: [
+    // 抽离 css 文件
+    new MiniCssExtractPlugin({
+      filename: 'css/main.[name].[hash].css'
+    }),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, '../public/index.html'),
       filename: 'index.html',

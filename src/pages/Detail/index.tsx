@@ -47,6 +47,8 @@ const Detail: FC = () => {
     }, 1000)
   }, [imageModalVisible, currentWidth]);
 
+  const handleDetailData = () => { };
+
   const handleSubmit = () => {
     const submitData = state.dataSource;
     console.log('submitData:', submitData);
@@ -71,7 +73,7 @@ const Detail: FC = () => {
       setPaperUrls(oldUrls);
     });
     const openAndScanResult = await openAndScan(scr);
-    if (openAndScanResult.result === 0) {
+    if (openAndScanResult?.result === 0) {
       message.success('扫描完成, 正在识别您的单据');
       return true;
     } else {
@@ -81,32 +83,31 @@ const Detail: FC = () => {
   };
 
   const handleModalOk = async () => {
-    setConfirmLoading(true);
     if (confirmLoading) {
       return;
     }
+    setConfirmLoading(true);
     // 扫描
     const scanPaperResult = await scanPapers();
-    if (scanPaperResult) {
+    // 扫描成功
+    if (!scanPaperResult) {
       // 扫描成功，通过api获取识别结果
       setModalMsg('扫描完成，正在识别您的单据，请耐心等待！');
       console.log('扫描完成，正在识别您的单据，请耐心等待！');
-      const sendImageResult: any = sendImage(empId, orderId, orderNum);
+      const sendImageResult: any = await sendImage(empId, orderId, orderNum);
       console.log('识别图片完成：', sendImageResult);
       if (sendImageResult.status === 200) {
         setConfirmLoading(false);
         setVisible(false);
+        handleDetailData()
+      } else {
+        setConfirmLoading(false);
+        setModalMsg(`${sendImageResult?.message || '服务器内部错误'}，请将单据整理好，重新放入扫描窗口，并点击确定重新扫描！`);
       }
     } else {
       setModalMsg('扫描出错，请将单据整理好，重新放入扫描窗口，并点击确定重新扫描！');
       setConfirmLoading(false);
     }
-
-
-    setTimeout(() => {
-      setConfirmLoading(false);
-      setVisible(false);
-    }, 2000);
   };
 
   const handleModalCancel = () => {

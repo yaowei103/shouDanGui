@@ -1,6 +1,7 @@
 import React, { FC, useEffect, useState } from 'react';
 import { Table, Button, message } from 'antd';
 // import { Link } from 'react-router-dom';
+import Loading from '@/components/Loading';
 import { useHistory } from 'react-router-dom';
 import { getList } from '@/service/api';
 import styles from './index.less';
@@ -24,6 +25,7 @@ const List: FC = () => {
     }
   ];
   const [dataList, setDataList] = useState(dataSource);
+  const [showLoading, setShowLoading] = useState(true);
 
   const getDataList = async () => {
     const res = await getList('A2219');
@@ -32,6 +34,7 @@ const List: FC = () => {
     } else {
       message.error('列表请求错误!');
     }
+    setShowLoading(false);
   }
   useEffect(() => {
     getDataList();
@@ -95,19 +98,22 @@ const List: FC = () => {
 
   const [emplyeeId = '', emplyeeName = ''] = dataList[0] && dataList[0].expman.split('-') || [];
   return (
-    <div className={styles.list}>
-      <div className={styles.header}>纳铁福只能收单柜</div>
-      <div className={styles.body}>
-        <div className={styles.userInfo}>
-          <div className={styles.infoItem}>姓名：<span className={styles.infoVal}>{emplyeeName}</span></div>
-          <div className={styles.infoItem}>工号：<span className={styles.infoVal}>{emplyeeId}</span></div>
+    <>
+      <div className={styles.list}>
+        <div className={styles.header}>纳铁福只能收单柜</div>
+        <div className={styles.body}>
+          <div className={styles.userInfo}>
+            <div className={styles.infoItem}>姓名：<span className={styles.infoVal}>{emplyeeName}</span></div>
+            <div className={styles.infoItem}>工号：<span className={styles.infoVal}>{emplyeeId}</span></div>
+          </div>
+          <div className={styles.table}>
+            {renderTable()}
+          </div>
         </div>
-        <div className={styles.table}>
-          {renderTable()}
-        </div>
+        <div className={styles.footer}>@纳铁福版权所有</div>
       </div>
-      <div className={styles.footer}>@纳铁福版权所有</div>
-    </div>
+      <Loading show={showLoading} />
+    </>
   );
 }
 

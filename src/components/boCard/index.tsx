@@ -28,7 +28,7 @@ export const openPIDC: any = async (pidc: any, maxTimes: any | undefined = 10) =
 //   }
 // }
 
-export const readPIDC: any = async (pidc: any) => {
+export const readPIDC: any = async (pidc: any, maxTimes: number | undefined = 10) => {
   var param = {
     action: "pid",
     fingerprint_base64: true,
@@ -43,9 +43,12 @@ export const readPIDC: any = async (pidc: any) => {
   } else if (result.result == -4) {
     console.log("取消读卡动作");
     return await readPIDC(pidc);
+  } else if (maxTimes <= 0 && result.result === -1) {
+    message.error('读卡错误，已尝试10次！请联系管理员');
+    return result;
   } else {
-    console.log("readPIDC()发生错误:" + result.message);
-    return await readPIDC(pidc);
+    console.log("readPIDC()发生错误:", result.message, `正在第${11 - maxTimes}次重新打开`);
+    return await readPIDC(pidc, maxTimes - 1);
   }
 }
 
