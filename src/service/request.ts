@@ -62,14 +62,14 @@ export default function request(url: string, options: any) {
     newOptions.method === 'DELETE'
   ) {
     console.log('request type:', !(newOptions.body instanceof FormData));
-    if (!(newOptions.body instanceof FormData)) {
+    if (newOptions.body instanceof FormData) {
       newOptions.headers = {
         Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
         ...newOptions.headers,
       };
-      newOptions.data = JSON.stringify(newOptions.body);
-      newOptions.body = JSON.stringify(newOptions.body);
+      newOptions.data = newOptions.body;
+      newOptions.body = newOptions.body;
     } else {
       // newOptions.body is FormData
       newOptions.headers = {
@@ -90,22 +90,6 @@ export default function request(url: string, options: any) {
     })
     .catch((e) => {
       // 失败的回调
-      const status = e.name;
-      message.error(`请求错误，错误码：${status}`);
-      // if (status === 401) {
-      //   history.push(`${process.env.NODE_ENV === 'development' ? '/' : '/shouDanGui/'}login`);
-      //   return;
-      // }
-      // if (status === 403) {
-      //   history.push(`${process.env.NODE_ENV === 'development' ? '/' : '/shouDanGui/'}login`);
-      //   return;
-      // }
-      // if (status <= 504 && status >= 500) {
-      //   history.push(`${process.env.NODE_ENV === 'development' ? '/' : '/shouDanGui/'}login`);
-      //   return;
-      // }
-      // if (status >= 404 && status < 422) {
-      //   history.push(`${process.env.NODE_ENV === 'development' ? '/' : '/shouDanGui/'}login`);
-      // }
+      message.error(`请求错误，错误码：${e}`);
     });
 }

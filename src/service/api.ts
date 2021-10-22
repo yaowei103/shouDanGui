@@ -6,12 +6,15 @@ export const getList = (empId: string) => {
   });
 };
 
-export const sendImage = (empId: string, orderId: string, orderNum: string) => {
+export const sendImage = (empId: string, orderId: string, orderNum: string, base64File: any) => {
+  const formData = new FormData();
+  formData.append('file', base64File);
   return request(`/ticket?empId=${empId}&orderId=${orderId}&orderNum=${orderNum}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-    }
+    },
+    body: formData
   });
 };
 
