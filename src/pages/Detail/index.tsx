@@ -4,7 +4,8 @@ import { useLocation } from 'react-router-dom';
 import styles from './index.less';
 import { openAndScan } from '@/components/pagerScanner';
 import { sendImage } from '@/service/api';
-import { drag } from '@/utils/utils';
+import { drag, mergeDetailData } from '@/utils/utils';
+import classNames from 'classnames';
 import { v4 as uuidv4 } from 'uuid';
 
 const { Column, ColumnGroup } = Table;
@@ -135,13 +136,15 @@ const Detail: FC = () => {
     setVisible(false);
   };
 
+  // 修改数据
   const handleCellChange = (val: string, field: string, i: number) => {
     console.log('val, field, i', val, field, i);
     const newDataSource = [...state.dataSource];
     newDataSource[i].ocrDetail[field] = val;
-    debugger;
+    // 合并数据 并setState
+    const mergeResult = mergeDetailData(newDataSource, i);
     setState({
-      dataSource: newDataSource
+      dataSource: mergeResult
     })
   };
 
@@ -193,7 +196,11 @@ const Detail: FC = () => {
       >
         <ColumnGroup title="图片">
           <Column dataIndex="imagePath" key="id" render={(text: any, record: any, index: number) => {
-            if (Object.keys(record?.ocrDetail || {}).length > 0) {
+            if (
+              record.expensesDetail?.invoicenumber === record.ocrDetail?.number &&
+              record.expensesDetail?.invoicecode === record.ocrDetail?.code ||
+              Object.keys(record.expensesDetail).length <= 0
+            ) {
               return <img onClick={() => { handleImgClick(record.imagePath) }} title="图片" src={record.imagePath} />
             } else {
               return '';
@@ -232,23 +239,56 @@ const Detail: FC = () => {
         <ColumnGroup title="收单柜">
           <Column
             title="发票号"
+            width={150}
             key="id"
             render={(text: any, record: any, index: number) => {
-              return <Input size="middle" value={record.ocrDetail?.number || '-'} onChange={(e: any) => { handleCellChange(e.currentTarget.value, 'number', index); }} />;
+              const flag = record.expensesDetail.invoicenumber !== record.ocrDetail.number && Object.keys(record.expensesDetail).length <= 0;
+              return <div className={classNames(styles.inputDiv, flag ? styles.diffFlag : {})}>
+                <Input
+                  size="middle"
+                  placeholder="-"
+                  className={styles.input}
+                  value={record.ocrDetail?.number}
+                  disabled={Object.keys(record.expensesDetail || {}).length > 0}
+                  onChange={(e: any) => { handleCellChange(e.currentTarget.value, 'number', index); }}
+                />
+              </div>;
             }}
           />
           <Column
             title="代码"
+            width={150}
             key="id"
             render={(text: any, record: any, index: number) => {
-              return <Input size="middle" value={record.ocrDetail?.code || '-'} onChange={(e: any) => { handleCellChange(e.currentTarget.value, 'code', index); }} />;
+              const flag = record.expensesDetail.invoicecode !== record.ocrDetail.code && Object.keys(record.expensesDetail).length <= 0;
+              return <div className={classNames(styles.inputDiv, flag ? styles.diffFlag : {})}>
+                <Input
+                  size="middle"
+                  className={styles.input}
+                  placeholder="-"
+                  value={record.ocrDetail?.code}
+                  disabled={Object.keys(record.expensesDetail || {}).length > 0}
+                  onChange={(e: any) => { handleCellChange(e.currentTarget.value, 'code', index); }}
+                />
+              </div>;
             }}
           />
           <Column
             title="金额"
+            width={150}
             key="id"
             render={(text: any, record: any, index: number) => {
-              return <Input size="middle" value={record.ocrDetail?.total || '-'} onChange={(e: any) => { handleCellChange(e.currentTarget.value, 'total', index); }} />;
+              const flag = (record.expensesDetail.amount !== record.ocrDetail.total && Object.keys(record.expensesDetail).length <= 0) || (record.expensesDetail.invoicenumber === record.ocrDetail.number && record.expensesDetail.invoicecode === record.ocrDetail.code && record.expensesDetail.amount !== Number(record.ocrDetail.total));
+              return <div className={classNames(styles.inputDiv, flag ? styles.diffFlag : {})}>
+                <Input
+                  size="middle"
+                  className={styles.input}
+                  placeholder="-"
+                  value={record.ocrDetail?.total}
+                  // disabled={Object.keys(record.expensesDetail || {}).length > 0}
+                  onChange={(e: any) => { handleCellChange(e.currentTarget.value, 'total', index); }}
+                />
+              </div>;
             }}
           />
         </ColumnGroup>

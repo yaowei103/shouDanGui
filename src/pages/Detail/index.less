@@ -1,6 +1,13 @@
 @import "../../components/common/common.less";
 
 .detail {
+  :global {
+    .ant-table-body{
+      .ant-table-cell {
+        padding: 0;
+      }
+    }
+  }
   height: 100%;
   display:flex;
   flex-direction: column;
@@ -41,6 +48,15 @@
       display: flex;
       justify-content: flex-end;
     }
+  }
+  .inputDiv {
+    padding: 16px;
+  }
+  .diffFlag {
+    background: #ff0000;
+  }
+  .input {
+    background: transparent;
   }
 }
 .imageModal {

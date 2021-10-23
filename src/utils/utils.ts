@@ -51,3 +51,42 @@ export const drag = (obj: any, sent: any) => {
     return false;
   }
 }
+
+export const mergeDetailData = (data: any[], mergeFromIndex: number) => {
+  const newData = [...data];
+  let mergeToIndex = 0;
+  // 修改的数据的 ocr数据
+  const mergeFromItem = newData[mergeFromIndex];
+  const changeItemOcrDetail = mergeFromItem.ocrDetail;
+
+  // 循环数组，找到要 合并到 的item；
+  const mergeToItem = newData?.find((item, index) => {
+    const { expensesDetail } = item;
+    // 核对发票号和代码号，相同的记录合并
+    if (
+      expensesDetail.invoicecode === changeItemOcrDetail?.code &&
+      expensesDetail.invoicenumber === changeItemOcrDetail?.number
+      // expensesDetail.amount === ocrDetail?.total &&
+      // Object.keys(ocrDetail).length <= 0
+    ) {
+      mergeToIndex = index;
+      return item;
+    }
+  });
+  // 如果没找到就返回原来的数组
+  if (Object.keys(mergeToItem || {}).length <= 0) {
+    return newData;
+  }
+  if (Object.keys(mergeFromItem.expensesDetail || {}).length > 0) {
+    return newData;
+  }
+
+  // 合并找到的数据
+  newData[mergeToIndex].imagePath = newData[mergeFromIndex].imagePath;
+  newData[mergeToIndex].ocrDetail = newData[mergeFromIndex].ocrDetail;
+  // newData[mergeToIndex].ocrDetail['code'] = newData[mergeFromIndex].ocrDetail.code;
+  // newData[mergeToIndex].ocrDetail['code'] = newData[mergeFromIndex].ocrDetail.code;
+  // 删除 识别出来的数据
+  newData?.splice(mergeFromIndex, 1);
+  return newData;
+};
