@@ -6,6 +6,7 @@ import { Form, Input, Button, Row, Col, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
 import { openAndReadResult, testOpenAndReadResult } from '@/components/boCard';
+import icon from '@/assets/icon-card.png';
 
 // import { Link } from "react-router-dom";
 
@@ -27,9 +28,13 @@ const Login: FC = () => {
     }, 1000)
   };
 
-  const handleTabChange = async (tab: string) => {
+  const handleTabChange = (tab: string) => {
     setCurrentTab(tab);
-    if (tab === '3') {
+    payByCard(tab);
+  };
+
+  const payByCard = async (tab: string) => {
+    if (tab === '1') {
       const pidc = new BOCardReader({ "device": 'PIDC' });
       console.log('开始读卡');
       const readResult: any = await openAndReadResult(pidc);
@@ -57,22 +62,26 @@ const Login: FC = () => {
   };
 
   useEffect(() => {
-    const dingdingEle = document.querySelector('#dingdingCode');
-    if (dingdingEle) {
-      const url = encodeURIComponent('http://localhost:8080/index?test=1&aa=2');
-      const goto = encodeURIComponent(`https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid=${AppSecret}&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=${url}`)
-      window.DDLogin({
-        id: "dingdingCode",//这里需要你在自己的页面定义一个HTML标签并设置id，例如<div id="login_container"></div>或<span id="login_container"></span>
-        goto: goto, //请参考注释里的方式
-        style: "border:none;background-color:#FFFFFF;",
-        width: "365",
-        height: "320"
-      });
+    if (currentTab === '1') {
+      payByCard('1')
+    } else if (currentTab === '2') {
+      const dingdingEle = document.querySelector('#dingdingCode');
+      if (dingdingEle) {
+        const url = encodeURIComponent('http://localhost:8080/index?test=1&aa=2');
+        const goto = encodeURIComponent(`https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid=${AppSecret}&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=${url}`)
+        window.DDLogin({
+          id: "dingdingCode",//这里需要你在自己的页面定义一个HTML标签并设置id，例如<div id="login_container"></div>或<span id="login_container"></span>
+          goto: goto, //请参考注释里的方式
+          style: "border:none;background-color:#FFFFFF;",
+          width: "365",
+          height: "320"
+        });
 
-      if (typeof window.addEventListener != 'undefined') {
-        window.addEventListener('message', handleMessage, false);
-      } else if (typeof window.attachEvent != 'undefined') {
-        window.attachEvent('onmessage', handleMessage);
+        if (typeof window.addEventListener != 'undefined') {
+          window.addEventListener('message', handleMessage, false);
+        } else if (typeof window.attachEvent != 'undefined') {
+          window.attachEvent('onmessage', handleMessage);
+        }
       }
     }
     // 取消注册的事件
@@ -184,17 +193,20 @@ const Login: FC = () => {
       <div className={styles.header}>SDS智能收单柜</div>
       <div className={styles.body}>
         <Tabs className={styles.tabContainer} defaultActiveKey={currentTab} onChange={handleTabChange}>
-          <TabPane className={classnames(styles.panel, styles.dingdingPanel)} tab="钉钉登录" key="1">
+          <TabPane className={classnames(styles.panel, styles.cardPanel)} tab="刷卡登录" key="1">
+            <div className={styles.payByCard}>
+              <img src={icon} />
+              请刷卡
+            </div>
+          </TabPane>
+          <TabPane className={classnames(styles.panel, styles.dingdingPanel)} tab="钉钉登录" key="2">
             <div className={styles.dingdingCode} id="dingdingCode" />
           </TabPane>
           {/* <TabPane className={classnames(styles.panel, styles.usernamePanel)} tab="用户名密码登录" key="2">
             {renderUsernamePassword()}
           </TabPane> */}
-          <TabPane className={classnames(styles.panel, styles.phoneMsgPanel)} tab="手机验证码登录" key="2">
+          <TabPane className={classnames(styles.panel, styles.phoneMsgPanel)} tab="手机验证码登录" key="3">
             {renderPhoneMsg()}
-          </TabPane>
-          <TabPane className={classnames(styles.panel, styles.cardPanel)} tab="刷卡登录" key="3">
-            请刷卡
           </TabPane>
         </Tabs>
       </div>

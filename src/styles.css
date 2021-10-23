@@ -27,6 +27,7 @@ html,body{
 
 #app {
   height: 100%;
+  background-color: #f8f8f8;
 }
 
 .ant-tabs-nav-list {
@@ -89,3 +90,14 @@ html,body{
 .ant-modal-content{
   overflow: hidden;
 }
+
+.ant-btn-primary {
+  border-color: #4f7693;
+  background-color: #4f7693;
+}
+
+/* .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #3a6b8b;
+  font-weight: 600;
+  text-shadow: 0 0 0.25px currentColor;
+} */

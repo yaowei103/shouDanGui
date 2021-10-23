@@ -11,6 +11,7 @@ const List: FC = () => {
   const dataSource: any[] = [
     {
       "billno": "TEP202109140002",
+      "name": "测试数据",
       "col1": "",
       "col2": "",
       "col3": "",
@@ -55,8 +56,8 @@ const List: FC = () => {
     {
       title: '名称',
       width: 250,
-      dataIndex: 'c',
-      key: 'c',
+      dataIndex: 'name',
+      key: 'name',
     },
     {
       title: '发票金额',

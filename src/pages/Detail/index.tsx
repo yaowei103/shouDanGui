@@ -7,6 +7,7 @@ import { sendImage } from '@/service/api';
 import { drag, mergeDetailData } from '@/utils/utils';
 import classNames from 'classnames';
 import { v4 as uuidv4 } from 'uuid';
+import icon from '@/assets/icon-down.png';
 
 const { Column, ColumnGroup } = Table;
 
@@ -319,6 +320,7 @@ const Detail: FC = () => {
       <Modal
         className={styles.modalBody}
         title="提示"
+        width={620}
         visible={visible}
         onOk={handleModalOk}
         confirmLoading={confirmLoading}
@@ -330,6 +332,7 @@ const Detail: FC = () => {
         centered // 垂直居中
       >
         <p className={styles.tipContent}>
+          <img src={icon} />
           {modalMsg}
         </p>
       </Modal>
