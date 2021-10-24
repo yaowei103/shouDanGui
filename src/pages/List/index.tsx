@@ -101,7 +101,7 @@ const List: FC = () => {
   return (
     <>
       <div className={styles.list}>
-        <div className={styles.header}>纳铁福只能收单柜</div>
+        <div className={styles.header}>纳铁福智能收单柜</div>
         <div className={styles.body}>
           <div className={styles.userInfo}>
             <div className={styles.infoItem}>姓名：<span className={styles.infoVal}>{emplyeeName}</span></div>
