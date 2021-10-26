@@ -1,5 +1,11 @@
 import request from './request';
 
+export const logonByCardId = (cardId: string) => {
+  return request(`/logonByCardId?cardId=${cardId}`, {
+    method: 'GET',
+  });
+};
+
 export const getList = (empId: string) => {
   return request(`/expenses?empId=${empId}`, {
     method: 'GET',

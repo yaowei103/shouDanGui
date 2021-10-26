@@ -5,8 +5,9 @@ import classnames from 'classnames';
 import { Form, Input, Button, Row, Col, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
-import { openAndReadResult, testOpenAndReadResult } from '@/components/boCard';
+import { openPIDC, getStatusAndRead, resetPIDC } from '@/components/boCard';
 import icon from '@/assets/icon-card.png';
+import { logonByCardId } from '@/service/api';
 
 // import { Link } from "react-router-dom";
 
@@ -18,36 +19,32 @@ const Login: FC = () => {
   // const AppKey = 'dingdsldijwnccbqy4xj';
   const AppSecret = 'jS93tWpbVnGqjxJ8YgI5P4whqbL5iuoY2GBMXAHTUA-UUJ1DAq-XdwpWWSHXvQPH';
 
-  const handleReadResultMsg = async (result: any) => {
+  const pidc = new BOCardReader({ "device": 'PIDC' });
+
+  const handleReadResultMsg = async (cardId: string) => {
     // 读卡成功，将信息发送给后端；
-    console.log('将读卡信息发送给后端', result);
+    console.log('将读卡信息发送给后端', cardId);
     //登录成功跳转页面
-    message.success('登录成功');
-    setTimeout(() => {
+    const logonResult = await logonByCardId(cardId);
+    if (logonResult.empcode) {
+      message.success('登录成功');
       history.push(`/list`, {});
-    }, 1000)
+    }
   };
 
   const handleTabChange = (tab: string) => {
     setCurrentTab(tab);
-    payByCard(tab);
   };
 
-  const payByCard = async (tab: string) => {
-    if (tab === '1') {
-      const pidc = new BOCardReader({ "device": 'PIDC' });
-      console.log('开始读卡');
-      const readResult: any = await openAndReadResult(pidc);
-      console.log('读卡器result', readResult);
-      if (readResult && readResult.result === 0) {
-        message.success('读卡成功');
-        handleReadResultMsg(readResult);
-      } else {
-        message.error('读卡错误，请重试！');
+  const payByCard = async () => {
+    pidc.on('statusChange', async () => {
+      const readResult = await getStatusAndRead(pidc);
+      if (readResult.result === 0) {
+        const cardId = readResult.id;
+        console.log('读卡结果 cardId：', cardId);
+        handleReadResultMsg(cardId);
       }
-      // openPIDC(pidc);
-      console.log(testOpenAndReadResult);
-    }
+    });
   };
 
   var handleMessage = function (event: any) {
@@ -63,7 +60,9 @@ const Login: FC = () => {
 
   useEffect(() => {
     if (currentTab === '1') {
-      payByCard('1')
+      openPIDC(pidc);
+      resetPIDC(pidc);
+      payByCard();
     } else if (currentTab === '2') {
       const dingdingEle = document.querySelector('#dingdingCode');
       if (dingdingEle) {
