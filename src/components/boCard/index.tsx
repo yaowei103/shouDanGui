@@ -2,7 +2,7 @@
 import { message } from 'antd';
 
 
-export const openPIDC: any = async (pidc: any, maxTimes: any | undefined = 10) => {
+export const openPIDC: any = async (pidc: any, maxTimes: any | undefined = 5) => {
   var result = await pidc.openDevice();
   console.log(JSON.stringify(result));
   if (result.result == 0) {
@@ -17,7 +17,7 @@ export const openPIDC: any = async (pidc: any, maxTimes: any | undefined = 10) =
   }
 }
 
-export const getStatusPIDC: any = async (pidc: any, maxTimes: any | undefined = 10) => {
+export const getStatusPIDC: any = async (pidc: any, maxTimes: any | undefined = 5) => {
   var result = await pidc.getStatus();
   console.log(JSON.stringify(result));
   if (result.result == 0) {
@@ -32,14 +32,8 @@ export const getStatusPIDC: any = async (pidc: any, maxTimes: any | undefined = 
   }
 }
 
-export const readPIDC: any = async (pidc: any, maxTimes: number | undefined = 10) => {
-  var param = {
-    action: "pid",
-    fingerprint_base64: true,
-    photo_base64: true
-  };
-
-  var result = await pidc.read(param);
+export const readPIDC: any = async (pidc: any, maxTimes: number | undefined = 5) => {
+  var result = await pidc.read();
   console.log(JSON.stringify(result));
   if (result.result == 0) {
     console.log("读卡成功");
@@ -66,7 +60,7 @@ export const readPIDC: any = async (pidc: any, maxTimes: number | undefined = 10
 //   }
 // }
 
-export const resetPIDC: any = async (pidc: any, maxTimes: number | undefined = 10) => {
+export const resetPIDC: any = async (pidc: any, maxTimes: number | undefined = 5) => {
   var result = await pidc.resetDevice();
   console.log('resetCard result:', result);
   if (result.result == 0) {
@@ -90,7 +84,7 @@ export const closePIDC: any = async (pidc: any) => {
   }
 }
 
-export const getStatusAndRead: any = async (pidc: any, maxTimes: number | undefined = 500) => {
+export const getStatusAndRead: any = async (pidc: any, maxTimes: number | undefined = 5) => {
   const status = await getStatusPIDC(pidc);
   if (status.status === 0 && status.card === true) {
     // 状态正常，可以读卡

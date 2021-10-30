@@ -35,7 +35,7 @@ export const sendImage = (empId: string, orderId: string, orderNum: string, base
 };
 
 export const submitData = (data: any) => {
-  return request('/submit', {
+  return request('/saveTicket', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -25,8 +25,8 @@ const Detail: FC = () => {
   // 硬件对象
   const scr = new BOScanner({ "device": 'SCR' });
   // dummy data
-  const { empcode = 'A2219', cnname = '吴向前' } = history.location.state?.user;
-  const { orderId = '402847407be1c41e017be2b0e62c0075', orderNum = 'TEP202109140002' } = history.location.state?.record;
+  const { empcode = 'A2219', cnname = '吴向前' } = history.location.state?.user || {};
+  const { orderId = '402847407be1c41e017be2b0e62c0075', orderNum = 'TEP202109140002' } = history.location.state?.record || {};
   console.log('statlocatione:', history.location);
 
   // const imgEle = useRef('modalImg');
@@ -76,7 +76,10 @@ const Detail: FC = () => {
   };
 
   const handleSubmit = async () => {
-    const reqBody = state.dataSource;
+    const reqBody = {
+      order_number: orderNum,
+      ticket_data: state.dataSource,
+    };
     console.log('submitData:', reqBody);
     setSubmitDisable(true);
     const submitResult = await submitData(reqBody);

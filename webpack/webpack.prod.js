@@ -33,10 +33,10 @@ module.exports = merge(webpackCommonConf, {
           options: {
             // 小于 5kb 的图片用 base64 格式产出
             // 否则，依然延用 file-loader 的形式，产出 url 格式
-            limit: 5 * 1024,
+            limit: 10 * 1024,
 
             // 打包到 img 目录下
-            outputPath: '/img1/',
+            outputPath: '/img/',
           }
         }
       },
