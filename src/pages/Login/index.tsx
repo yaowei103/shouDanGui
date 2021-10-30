@@ -7,7 +7,7 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
 import { openPIDC, getStatusAndRead, resetPIDC } from '@/components/boCard';
 import icon from '@/assets/icon-card.png';
-import { logon } from '@/service/api';
+import { logon, getPhoneCode } from '@/service/api';
 import Loading from '@/components/Loading';
 
 // import { Link } from "react-router-dom";
@@ -22,6 +22,12 @@ const Login: FC = () => {
   const AppSecret = 'jS93tWpbVnGqjxJ8YgI5P4whqbL5iuoY2GBMXAHTUA-UUJ1DAq-XdwpWWSHXvQPH';
 
   const pidc = new BOCardReader({ "device": 'PIDC' });
+
+  const [phoneLogonState, setPhoneLogonState] = useState({
+    name: '',
+    phoneNumber: '',
+    code: ''
+  });
 
   const handleReadResultMsg = async (cardId: string) => {
     // 读卡成功，将信息发送给后端；
@@ -147,18 +153,44 @@ const Login: FC = () => {
   //   );
   // };
 
+  const handlePhoneLogonChange = (e: any, field: string) => {
+    setPhoneLogonState({
+      ...phoneLogonState,
+      [field]: e.target.value
+    });
+  }
+
+  const handlePhoneLogon = async () => {
+    const req = { ...phoneLogonState, type: 2 };
+    const result = await logon(req);
+    const { code, data } = result;
+    setShowLoading(false);
+    if (code === 200 && data?.empcode) {
+      console.log('刷卡登录成功');
+      message.success('登录成功');
+      history.push(`/list`, {
+        user: data
+      });
+    } else {
+      console.log('登录失败，请尝试其他方式登录');
+      message.error('登录失败，请尝试其他方式登录');
+    }
+  }
+
+  const getPhoneMsg = async () => {
+    const { name, phoneNumber } = phoneLogonState;
+    const result = await getPhoneCode(name, phoneNumber);
+    debugger;
+    if (result?.data?.code === 200) {
+      message.success('短信验证码发送成功');
+    } else {
+      message.error(result?.data?.message || '短信验证码发送失败，请重试');
+    }
+  };
+
   const renderPhoneMsg = () => {
     const [form] = Form.useForm();
-    const onFinish = (values: any) => {
-      console.log('Received values of form: ', values);
-      history.push(`/list`, {});
-    };
-
-    const getPhoneMsg = async () => {
-      // form.validateFields(['phoneNumber']);
-      // const values = form.getFieldValue('phoneNumber');
-      // console.log(values);
-    };
+    console.log('form:', form);
 
     return (
       <Form
@@ -166,13 +198,31 @@ const Login: FC = () => {
         name="normal_login"
         className="login-form"
         initialValues={{ remember: true }}
-        onFinish={onFinish}
+      // onFinish={onFinish}
       >
+        <Form.Item
+          name="name"
+          rules={[{ required: true, message: '请输入姓名!' }]}
+        >
+          <Input
+            size="large"
+            value={phoneLogonState.name}
+            onChange={(e) => { handlePhoneLogonChange(e, 'name') }}
+            prefix={<UserOutlined className="site-form-item-icon" />}
+            placeholder="请输入姓名"
+          />
+        </Form.Item>
         <Form.Item
           name="phoneNumber"
           rules={[{ required: true, pattern: new RegExp(/^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/), message: '请输入正确手机号码!' }]}
         >
-          <Input size="large" prefix={<UserOutlined className="site-form-item-icon" />} placeholder="请输入手机号码" />
+          <Input
+            size="large"
+            value={phoneLogonState.phoneNumber}
+            onChange={(e) => { handlePhoneLogonChange(e, 'phoneNumber') }}
+            prefix={<UserOutlined className="site-form-item-icon" />}
+            placeholder="请输入手机号码"
+          />
         </Form.Item>
         <Form.Item
           name="phoneMsg"
@@ -182,20 +232,35 @@ const Login: FC = () => {
             <Col span={15}>
               <Input
                 prefix={<LockOutlined className="site-form-item-icon" />}
+                value={phoneLogonState.code}
+                onChange={(e) => { handlePhoneLogonChange(e, 'code') }}
                 size="large"
                 type="text"
                 placeholder="请输入手机验证码"
               />
             </Col>
             <Col span={9}>
-              <Button type="default" onClick={getPhoneMsg} size="large" className="login-form-button">
+              <Button
+                type="primary"
+                disabled={!/^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/.test(phoneLogonState.phoneNumber) || phoneLogonState.name === ''}
+                onClick={getPhoneMsg}
+                size="large"
+                className="login-form-button"
+              >
                 获取验证码
               </Button>
             </Col>
           </Row>
         </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit" size="large" className="login-form-button">
+        <Form.Item shouldUpdate>
+          <Button
+            type="primary"
+            // htmlType="submit"
+            onClick={handlePhoneLogon}
+            size="large"
+            className="login-form-button"
+            disabled={!/^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/.test(phoneLogonState.phoneNumber) || phoneLogonState.name === '' || phoneLogonState.code === ''}
+          >
             登录
           </Button>
         </Form.Item>

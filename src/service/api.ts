@@ -1,5 +1,14 @@
 import request from './request';
 
+export const getPhoneCode = (name: any, phoneNumber: any) => {
+  return request(`/code?name=${name}&phoneNum=${phoneNumber}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+}
+
 export const logon = (req: any) => {
   return request('/logon', {
     method: 'POST',

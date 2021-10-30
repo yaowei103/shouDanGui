@@ -126,7 +126,7 @@ export const getStatus: any = async (scr: any, maxTimes: number | undefined = 5)
   }
 }
 
-export const getSensorStatus: any = async (scr: any, maxTimes: number | undefined = 50) => {
+export const getSensorStatus: any = async (scr: any, maxTimes: number | undefined = 10) => {
   var result = await scr.call("get_sensor_status");
   console.log('获取获取传感器状态成功：', result);
   if (result.result == 0) {

@@ -8,6 +8,7 @@ import { drag, mergeDetailData } from '@/utils/utils';
 import classNames from 'classnames';
 import { v4 as uuidv4 } from 'uuid';
 import icon from '@/assets/icon-down.png';
+import imgPlaceholder from '@/assets/placeholder-1.jpeg';
 
 const { Column, ColumnGroup } = Table;
 
@@ -77,8 +78,8 @@ const Detail: FC = () => {
 
   const handleSubmit = async () => {
     const reqBody = {
-      order_number: orderNum,
-      ticket_data: state.dataSource,
+      orderNum: orderNum,
+      ticketData: state.dataSource,
     };
     console.log('submitData:', reqBody);
     setSubmitDisable(true);
@@ -86,6 +87,7 @@ const Detail: FC = () => {
     setSubmitDisable(false);
     if (submitResult.code === 200) {
       message.success('提交成功');
+      history.push('/', {});
     } else {
       message.error('提交失败，请重新提交')
     }
@@ -126,9 +128,9 @@ const Detail: FC = () => {
     // 扫描
     const scanPaperResult = await scanPapers();
     // 扫描成功
-    if (scanPaperResult) {
+    if (!scanPaperResult) {
       // 扫描成功，通过api获取识别结果
-      const sendImageResult: any = await sendImage(empcode, orderId, orderNum, [base64File]);
+      const sendImageResult: any = await sendImage(empcode, orderId, orderNum, [base64File, ...paperBase64List]);
       console.log('识别图片完成：', sendImageResult);
       if (sendImageResult?.code === 200 && sendImageResult.data.length > 0) {
         setConfirmLoading(false);
@@ -213,13 +215,17 @@ const Detail: FC = () => {
         rowClassName={() => 'editable-row'}
       >
         <ColumnGroup title="图片">
-          <Column dataIndex="imagePath" key="id" render={(text: any, record: any, index: number) => {
+          <Column width={120} dataIndex="imagePath" key="id" render={(text: any, record: any, index: number) => {
             if (
               record.expensesDetail?.invoicenumber === record.ocrDetail?.number &&
               record.expensesDetail?.invoicecode === record.ocrDetail?.code ||
               Object.keys(record.expensesDetail).length <= 0
             ) {
-              return <img onClick={() => { handleImgClick(record.imagePath) }} title="图片" src={record.imagePath} />
+              return <img
+                onClick={() => { handleImgClick(record.imagePath || imgPlaceholder) }}
+                src={record.imagePath || imgPlaceholder}
+                title="图片"
+              />
             } else {
               return '';
             }
