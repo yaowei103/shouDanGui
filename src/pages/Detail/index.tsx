@@ -1,9 +1,9 @@
 import React, { FC, useEffect, useState } from 'react';
 import { Modal, Table, Button, Input, message } from 'antd';
-import { useLocation } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import styles from './index.less';
-import { openAndScan } from '@/components/pagerScanner';
-import { sendImage } from '@/service/api';
+import { getStatusAndScan, openDevice, outAndResore } from '@/components/pagerScanner';
+import { sendImage, submitData } from '@/service/api';
 import { drag, mergeDetailData } from '@/utils/utils';
 import classNames from 'classnames';
 import { v4 as uuidv4 } from 'uuid';
@@ -12,21 +12,24 @@ import icon from '@/assets/icon-down.png';
 const { Column, ColumnGroup } = Table;
 
 const Detail: FC = () => {
-  const location: any = useLocation();
-  // dummy data
-  const { empId = 'A2219', orderId = '402847407be1c41e017be2b0e62c0075', orderNum = 'TEP202109140002' } = location.state;
-  console.log('statlocatione:', location);
-
-  const [visible, setVisible] = useState(true);
-
-  // const imgEle = useRef('modalImg');
   const [imageModalVisible, setImageModalVisible] = useState(false);
   const [currentImg, setCurrentImg] = useState('');
   const [rotate, setRotate] = useState(0);
   const [currentWidth, setCurrentWidth] = useState(0);
-
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [paperUrls, setPaperUrls] = useState([]);
+  const [paperBase64List, setPaperBase64List] = useState([]);
+  const [visible, setVisible] = useState(true);
+  const [submitDisable, setSubmitDisable] = useState(false);
+
+  const history: any = useHistory();
+  // 硬件对象
+  const scr = new BOScanner({ "device": 'SCR' });
+  // dummy data
+  const { empcode = 'A2219', cnname = '吴向前' } = history.location.state?.user;
+  const { orderId = '402847407be1c41e017be2b0e62c0075', orderNum = 'TEP202109140002' } = history.location.state?.record;
+  console.log('statlocatione:', history.location);
+
+  // const imgEle = useRef('modalImg');
 
   const modalMsgInit = '请将单据整理好，带有二维码的封面放在第一页，然后封面朝下放入收单柜。';
   const [modalMsg, setModalMsg] = useState(modalMsgInit)
@@ -42,6 +45,8 @@ const Detail: FC = () => {
   });
 
   useEffect(() => {
+    // 开启扫描仪
+    openDevice(scr);
     setTimeout(() => {
       const ele: any = document.getElementById('modalImgId');
       const width = ele && ele.width;
@@ -70,35 +75,42 @@ const Detail: FC = () => {
     })
   };
 
-  const handleSubmit = () => {
-    const submitData = state.dataSource;
-    console.log('submitData:', submitData);
+  const handleSubmit = async () => {
+    const reqBody = state.dataSource;
+    console.log('submitData:', reqBody);
+    setSubmitDisable(true);
+    const submitResult = await submitData(reqBody);
+    setSubmitDisable(false);
+    if (submitResult.code === 200) {
+      message.success('提交成功');
+    } else {
+      message.error('提交失败，请重新提交')
+    }
   };
 
   const scanPapers: any = async () => {
-    const scr = new BOScanner({ "device": 'SCR' });
+    console.log('注册监听函数');
     scr.on('onScanPage', (res: any) => {
       const {
-        back_image,
-        // back_image_height,
-        // back_image_width, 
-        // dpi, 
-        front_image,
-        // front_image_height, 
-        // front_image_width, 
-        // device = 'SCR'
+        back_image_base64,
+        front_image_base64,
       } = res;
-      console.log('正面图片路径', front_image);
-      console.log('反面图片路径', back_image);
-      const oldUrls: any = [...paperUrls, back_image];
-      setPaperUrls(oldUrls);
+      console.log('监听函数返回，正面图片', front_image_base64);
+      console.log('监听函数返回，反面图片', back_image_base64);
+      const oldList: any = [...paperBase64List, back_image_base64];
+      setPaperBase64List(oldList);
     });
-    const openAndScanResult = await openAndScan(scr);
-    if (openAndScanResult?.result === 0) {
-      message.success('扫描完成, 正在识别您的单据');
+    console.log('开始获取状态并扫描');
+    const getStatusAndScanResult = await getStatusAndScan(scr);
+    console.log('扫描完成，结果：', getStatusAndScanResult);
+    if (getStatusAndScanResult?.result === 0) {
+      message.success('扫描完成，正在识别您的单据，请耐心等待！');
+      setModalMsg('扫描完成，正在识别您的单据，请耐心等待！');
+      console.log('扫描完成，正在识别您的单据，请耐心等待！');
       return true;
     } else {
       message.error('扫描出错，请整理好单据，重新放入扫描窗口再次扫描');
+      setModalMsg('扫描出错，请将单据整理好，重新放入扫描窗口，并点击确定重新扫描！');
       return false;
     }
   };
@@ -111,14 +123,11 @@ const Detail: FC = () => {
     // 扫描
     const scanPaperResult = await scanPapers();
     // 扫描成功
-    if (!scanPaperResult) {
+    if (scanPaperResult) {
       // 扫描成功，通过api获取识别结果
-      setModalMsg('扫描完成，正在识别您的单据，请耐心等待！');
-      console.log('扫描完成，正在识别您的单据，请耐心等待！');
-      console.log('base64file:', base64File);
-      const sendImageResult: any = await sendImage(empId, orderId, orderNum, base64File);
+      const sendImageResult: any = await sendImage(empcode, orderId, orderNum, [base64File]);
       console.log('识别图片完成：', sendImageResult);
-      if (sendImageResult?.code === 200) {
+      if (sendImageResult?.code === 200 && sendImageResult.data.length > 0) {
         setConfirmLoading(false);
         setVisible(false);
         handleDetailData(sendImageResult.data);
@@ -127,14 +136,19 @@ const Detail: FC = () => {
         setModalMsg(`${sendImageResult?.message || '服务器内部错误'}，请将单据整理好，重新放入扫描窗口，并点击确定重新扫描！`);
       }
     } else {
-      setModalMsg('扫描出错，请将单据整理好，重新放入扫描窗口，并点击确定重新扫描！');
       setConfirmLoading(false);
     }
   };
 
-  const handleModalCancel = () => {
+  const handleModalCancel = async () => {
     console.log('Clicked cancel button');
-    setVisible(false);
+    const outResult = await outAndResore(scr);
+    if (outResult.result === 0) {
+      setVisible(false);
+      history.push('/', {});
+    } else {
+      message.error('退出文件失败，请重新退出');
+    }
   };
 
   // 修改数据
@@ -302,17 +316,20 @@ const Detail: FC = () => {
       <div className={styles.header}>纳铁福智能收单柜</div>
       <div className={styles.body}>
         <div className={styles.userInfo}>
-          <div className={styles.infoItem}>姓名：<span className={styles.infoVal}>张三</span></div>
-          <div className={styles.infoItem}>工号：<span className={styles.infoVal}>123456789</span></div>
-          <div className={styles.infoItem}>单据号：<span className={styles.infoVal}>123456789</span></div>
-          <div className={styles.infoItem}>报销人：<span className={styles.infoVal}>张三</span></div>
+          <div className={styles.infoItem}>姓名：<span className={styles.infoVal}>{cnname}</span></div>
+          <div className={styles.infoItem}>工号：<span className={styles.infoVal}>{empcode}</span></div>
+          <div className={styles.infoItem}>单据号：<span className={styles.infoVal}>{orderNum}</span></div>
+          <div className={styles.infoItem}>报销人：<span className={styles.infoVal}>{cnname}</span></div>
         </div>
         <div className={styles.table}>
           {renderTable()}
         </div>
         <div className={styles.btnContainer}>
-          <Button type="primary" onClick={handleSubmit} size="large">
-            确认无误，投递
+          <Button type="default" onClick={handleModalCancel} size="large">
+            取消并退出单据
+          </Button>
+          <Button className={styles.pageBtn} type="primary" disabled={submitDisable} onClick={handleSubmit} size="large">
+            确认并投递
           </Button>
         </div>
       </div>

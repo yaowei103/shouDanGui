@@ -1,8 +1,13 @@
 import request from './request';
 
-export const logonByCardId = (cardId: string) => {
-  return request(`/logonByCardId?cardId=${cardId}`, {
-    method: 'GET',
+export const logon = (req: any) => {
+  return request('/logon', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: req,
+    data: req
   });
 };
 
@@ -12,17 +17,33 @@ export const getList = (empId: string) => {
   });
 };
 
-export const sendImage = (empId: string, orderId: string, orderNum: string, base64File: any) => {
-  const formData = new FormData();
-  formData.append('file', base64File);
+export const sendImage = (empId: string, orderId: string, orderNum: string, base64FileList: string[]) => {
+  const reqBody = {
+    files: [],
+  }
+  base64FileList.forEach((file, index) => {
+    reqBody.files.push(file as never);
+  })
   return request(`/ticket?empId=${empId}&orderId=${orderId}&orderNum=${orderNum}`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/json',
     },
-    body: formData
+    body: reqBody,
+    data: reqBody,
   });
 };
+
+export const submitData = (data: any) => {
+  return request('/submit', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: data,
+    data: data
+  });
+}
 
 
 // export const getDetail = (empId: string, orderId: string, orderNum: string) => {

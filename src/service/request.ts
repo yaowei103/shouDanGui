@@ -9,7 +9,7 @@ axios.defaults.baseURL = BaseUrl;
 // axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'; // post 内容类型
 // axios.defaults.headers.get['Content-Type'] = 'application/json;charset=utf-8'; // get 内容类型
 // axios.defaults.headers.post['Content-Type'] = 'multipart/form-data'; // post 内容类型 formData 类型
-axios.defaults.timeout = 30000; // 超时设置,超时进入错误回调，进行相关操作
+axios.defaults.timeout = 60000; // 超时设置,超时进入错误回调，进行相关操作
 // axios.defaults.withCredentials = true; // 是否支持跨域cookie
 
 const codeMessage = {
@@ -91,5 +91,6 @@ export default function request(url: string, options: any) {
     .catch((e) => {
       // 失败的回调
       message.error(`请求错误，错误码：${e}`);
+      return {}
     });
 }

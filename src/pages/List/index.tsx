@@ -7,7 +7,7 @@ import { getList } from '@/service/api';
 import styles from './index.less';
 
 const List: FC = () => {
-  const history = useHistory();
+  const history: any = useHistory();
   const dataSource: any[] = [
     {
       "billno": "TEP202109140002",
@@ -29,9 +29,9 @@ const List: FC = () => {
   const [showLoading, setShowLoading] = useState(true);
 
   const getDataList = async () => {
-    const res = await getList('A2219');
+    const res = await getList(history.location.state?.user?.empcode);
     if (res?.code === 200) {
-      setDataList(res.data.atreturn || []);
+      setDataList(res.data.atreturn.length ? res.data.atreturn : dataSource);
     } else {
       message.error('列表请求错误!');
     }
@@ -89,7 +89,7 @@ const List: FC = () => {
   ];
   const handleTableRowClick = (record: any) => {
     console.log('row click: ', record);
-    history.push('/detail', { record });
+    history.push('/detail', { record, user: history.location.state.user });
   };
   const renderTable = () => {
     return (

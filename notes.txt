@@ -1,0 +1,35 @@
+
+first page 
+  open all 
+
+before use need reset
+  reset
+
+  scan
+    reruren 29 无纸
+
+  getStatus
+
+
+
+我先简单说下。主要就是几个函数。
+  1.scan调用这个函数,指定需要base64图像即可,这个函数会开启扫描,然后每扫描一页会有一个scan_page的回调,里边会给图像的base64编码字符串,当所有图像扫描完这个函数会返回,会告诉一共扫描了多少张。
+  2.retain就是存入。
+  3.eject是打开闸门然后托盘出去,退票。
+  4.restore是关闸门,把托盘收回来。
+  5，还有个unlock,这个是卡纸之后调用这个扫描仪会弹出来,可以处理卡纸。
+
+
+  提示用户放纸，确定按钮，扫描，
+    1，有纸，等待结果，发送api；
+    2，没纸，提示，确定，1步骤；
+
+    最终确认按钮，retain
+    取消，退出，reject，检测有没纸，纸取走，restore。
+
+
+  监听：
+  1，扫描监听
+  2，onStatusChanged装太监听。
+
+      异常 unlock 退纸。

@@ -7,7 +7,8 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
 import { openPIDC, getStatusAndRead, resetPIDC } from '@/components/boCard';
 import icon from '@/assets/icon-card.png';
-import { logonByCardId } from '@/service/api';
+import { logon } from '@/service/api';
+import Loading from '@/components/Loading';
 
 // import { Link } from "react-router-dom";
 
@@ -16,6 +17,7 @@ const { TabPane } = Tabs;
 const Login: FC = () => {
   const history = useHistory();
   const [currentTab, setCurrentTab] = useState<string>('1');
+  const [showLoading, setShowLoading] = useState(false);
   // const AppKey = 'dingdsldijwnccbqy4xj';
   const AppSecret = 'jS93tWpbVnGqjxJ8YgI5P4whqbL5iuoY2GBMXAHTUA-UUJ1DAq-XdwpWWSHXvQPH';
 
@@ -25,10 +27,24 @@ const Login: FC = () => {
     // 读卡成功，将信息发送给后端；
     console.log('将读卡信息发送给后端', cardId);
     //登录成功跳转页面
-    const logonResult = await logonByCardId(cardId);
-    if (logonResult.empcode) {
+    const req = {
+      type: 1,
+      cardId: cardId
+    }
+    message.success('刷卡成功，正在登录');
+    setShowLoading(true);
+    const logonResult = await logon(req);
+    const { code, data } = logonResult;
+    setShowLoading(false);
+    if (code === 200 && data?.empcode) {
+      console.log('刷卡登录成功');
       message.success('登录成功');
-      history.push(`/list`, {});
+      history.push(`/list`, {
+        user: data
+      });
+    } else {
+      console.log('登录失败，请尝试其他方式登录');
+      message.error('登录失败，请尝试其他方式登录');
     }
   };
 
@@ -63,7 +79,7 @@ const Login: FC = () => {
       openPIDC(pidc);
       resetPIDC(pidc);
       payByCard();
-    } else if (currentTab === '2') {
+    } else if (currentTab === '3') {
       const dingdingEle = document.querySelector('#dingdingCode');
       if (dingdingEle) {
         const url = encodeURIComponent('http://localhost:8080/index?test=1&aa=2');
@@ -189,6 +205,7 @@ const Login: FC = () => {
 
   return (
     <div className={styles.login}>
+      <Loading show={showLoading} />
       <div className={styles.header}>SDS智能收单柜</div>
       <div className={styles.body}>
         <Tabs className={styles.tabContainer} defaultActiveKey={currentTab} onChange={handleTabChange}>
@@ -198,13 +215,13 @@ const Login: FC = () => {
               请刷卡
             </div>
           </TabPane>
-          <TabPane className={classnames(styles.panel, styles.dingdingPanel)} tab="钉钉登录" key="2">
+          <TabPane className={classnames(styles.panel, styles.dingdingPanel)} tab="钉钉登录" key="3">
             <div className={styles.dingdingCode} id="dingdingCode" />
           </TabPane>
           {/* <TabPane className={classnames(styles.panel, styles.usernamePanel)} tab="用户名密码登录" key="2">
             {renderUsernamePassword()}
           </TabPane> */}
-          <TabPane className={classnames(styles.panel, styles.phoneMsgPanel)} tab="手机验证码登录" key="3">
+          <TabPane className={classnames(styles.panel, styles.phoneMsgPanel)} tab="手机验证码登录" key="2">
             {renderPhoneMsg()}
           </TabPane>
         </Tabs>
