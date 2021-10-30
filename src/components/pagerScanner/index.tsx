@@ -1,6 +1,6 @@
 import { message, Result } from 'antd';
 
-export const openDevice: any = async (scr: any, maxTimes: number | undefined = 10) => {
+export const openDevice: any = async (scr: any, maxTimes: number | undefined = 5) => {
   var result = await scr.openDevice({
     scanner: true,
     ist: true,
@@ -17,7 +17,7 @@ export const openDevice: any = async (scr: any, maxTimes: number | undefined = 1
   }
 }
 
-export const resetDevice: any = async (scr: any, maxTimes: number | undefined = 10) => {
+export const resetDevice: any = async (scr: any, maxTimes: number | undefined = 5) => {
   var result = await scr.resetDevice();
   if (result.result === 0) {
     console.log("重置设备成功");
@@ -31,7 +31,7 @@ export const resetDevice: any = async (scr: any, maxTimes: number | undefined = 
   }
 }
 
-export const scan: any = async (scr: any, maxTimes: number | undefined = 10) => {
+export const scan: any = async (scr: any, maxTimes: number | undefined = 5) => {
   var param = {
     image_base64: true,
   };
@@ -112,7 +112,7 @@ export const closeDevice = async (scr: any) => {
   }
 }
 
-export const getStatus: any = async (scr: any, maxTimes: number | undefined = 10) => {
+export const getStatus: any = async (scr: any, maxTimes: number | undefined = 5) => {
   var result = await scr.getStatus();
   if (result.result == 0) {
     console.log("获取状态成功");
