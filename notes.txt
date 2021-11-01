@@ -33,3 +33,5 @@ before use need reset
   2，onStatusChanged装太监听。
 
       异常 unlock 退纸。
+
+url       =   http://123.57.194.58:8080/shouDanGui/clientid={{ deviceNo }}

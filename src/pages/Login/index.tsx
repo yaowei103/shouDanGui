@@ -1,11 +1,11 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useCallback, useEffect, useState, useRef } from 'react';
 import styles from './index.less';
 import { Tabs } from 'antd';
 import classnames from 'classnames';
 import { Form, Input, Button, Row, Col, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
-import { openPIDC, getStatusAndRead, resetPIDC } from '@/components/boCard';
+import { openPIDC, closePIDC, getStatusAndRead, resetPIDC } from '@/components/boCard';
 import icon from '@/assets/icon-card.png';
 import { logon, getPhoneCode } from '@/service/api';
 import Loading from '@/components/Loading';
@@ -18,10 +18,11 @@ const Login: FC = () => {
   const history = useHistory();
   const [currentTab, setCurrentTab] = useState<string>('1');
   const [showLoading, setShowLoading] = useState(false);
+  const [getCodeBtnLoading, setGetCodeBtnLoading] = useState(0);
   // const AppKey = 'dingdsldijwnccbqy4xj';
   const AppSecret = 'jS93tWpbVnGqjxJ8YgI5P4whqbL5iuoY2GBMXAHTUA-UUJ1DAq-XdwpWWSHXvQPH';
 
-  const pidc = new BOCardReader({ "device": 'PIDC' });
+  const pidc = new BOCardReader({ "device": 'KIDC' });
 
   const [phoneLogonState, setPhoneLogonState] = useState({
     name: '',
@@ -40,6 +41,7 @@ const Login: FC = () => {
     message.success('刷卡成功，正在登录');
     setShowLoading(true);
     const logonResult = await logon(req);
+    console.log('登录结果', logonResult);
     const { code, data } = logonResult;
     setShowLoading(false);
     if (code === 200 && data?.empcode) {
@@ -59,14 +61,20 @@ const Login: FC = () => {
   };
 
   const payByCard = async () => {
-    pidc.on('statusChange', async () => {
-      const readResult = await getStatusAndRead(pidc);
-      if (readResult.result === 0) {
-        const cardId = readResult.id;
-        console.log('读卡结果 cardId：', cardId);
-        handleReadResultMsg(cardId);
-      }
-    });
+    console.log('payCard');
+    await openPIDC(pidc);
+    console.log('open ipdc');
+    await resetPIDC(pidc);
+    console.log('开始读卡');
+    const readResult = await getStatusAndRead(pidc);
+    console.log('读卡结果', readResult);
+    // pidc.on('statusChange', async () => {
+    if (readResult.result === 0) {
+      const cardId = readResult.id;
+      console.log('读卡结果 cardId：', cardId);
+      handleReadResultMsg(cardId);
+    }
+    // });
   };
 
   var handleMessage = function (event: any) {
@@ -81,11 +89,11 @@ const Login: FC = () => {
   };
 
   useEffect(() => {
-    if (currentTab === '1') {
-      openPIDC(pidc);
-      resetPIDC(pidc);
+    if (currentTab === '1') {// card logon
       payByCard();
-    } else if (currentTab === '3') {
+      clearInterval(timerRef.current);
+      setGetCodeBtnLoading(0);
+    } else if (currentTab === '3') { // dingding logon
       const dingdingEle = document.querySelector('#dingdingCode');
       if (dingdingEle) {
         const url = encodeURIComponent('http://localhost:8080/index?test=1&aa=2');
@@ -104,7 +112,18 @@ const Login: FC = () => {
           window.attachEvent('onmessage', handleMessage);
         }
       }
+      //其他情况，关闭设备
+      closePIDC(pidc);
+      clearInterval(timerRef.current);
+      setGetCodeBtnLoading(0);
+    } else if (currentTab === '2') {
+      console.log('phone logon');
+      //其他情况，关闭设备
+      closePIDC(pidc);
     }
+    
+    
+    
     // 取消注册的事件
     return () => {
       window.removeEventListener && window.removeEventListener('message', handleMessage, false);
@@ -167,7 +186,7 @@ const Login: FC = () => {
     setShowLoading(false);
     if (code === 200 && data?.empcode) {
       console.log('刷卡登录成功');
-      message.success('登录成功');
+      message.success('登录成功', result);
       history.push(`/list`, {
         user: data
       });
@@ -177,13 +196,28 @@ const Login: FC = () => {
     }
   }
 
+  const timerRef:any = useRef();
+
   const getPhoneMsg = async () => {
     const { name, phoneNumber } = phoneLogonState;
+    setGetCodeBtnLoading(59);
+    timerRef.current = setInterval(() => {
+      setGetCodeBtnLoading((getCodeBtnLoading) => {
+        console.log('getCodeBtnLoading', getCodeBtnLoading);
+        if (getCodeBtnLoading <= 0) {
+          clearInterval(timerRef.current);
+          return 0;
+        } else {
+          return getCodeBtnLoading - 1;
+        }
+      });
+    }, 1000);
     const result = await getPhoneCode(name, phoneNumber);
-    debugger;
-    if (result?.data?.code === 200) {
+    if (result?.code === 200) {
       message.success('短信验证码发送成功');
     } else {
+      clearInterval(timerRef.current);
+      setGetCodeBtnLoading(0);
       message.error(result?.data?.message || '短信验证码发送失败，请重试');
     }
   };
@@ -246,8 +280,13 @@ const Login: FC = () => {
                 onClick={getPhoneMsg}
                 size="large"
                 className="login-form-button"
+                loading={getCodeBtnLoading !== 0}
               >
-                获取验证码
+                {
+                getCodeBtnLoading !== 0
+                  ?<span>({getCodeBtnLoading}s)</span>
+                  : '获取验证码'
+                }
               </Button>
             </Col>
           </Row>

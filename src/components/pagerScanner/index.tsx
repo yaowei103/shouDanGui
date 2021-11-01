@@ -155,7 +155,7 @@ export const getStatusAndScan: any = async (scr: any, maxTimes: number | undefin
     }
     message.error('扫描超时，请退出重试');
   } else {
-    await openDevice(scr);
+    // await openDevice(scr);
     await resetDevice(scr);
     return await getStatusAndScan(scr, maxTimes - 1);
   }
@@ -164,18 +164,12 @@ export const getStatusAndScan: any = async (scr: any, maxTimes: number | undefin
 // 2.retain就是存入。 也会触发托盘弹出
 // 3.eject是打开闸门然后托盘出去,退票。
 // 4.restore是关闸门,把托盘收回来。
-// 还有个unlock,这个是卡纸之后调用这个扫描仪会弹出来,可以处理卡纸。
+// 还有个unlock,这个是卡纸之后调用这个扫描仪会弹出来,可以处理卡纸。 
 
 export const eject: any = async (scr: any) => {
   var result = await scr.call("eject");
-  console.log(JSON.stringify(result));
-  if (result.result == 0) {
-    console.log("退出文件成功");
-    return result;
-  } else {
-    console.log("eject()发生错误:" + result.message);
-    return result;
-  }
+  console.log("eject()结果:" + result);
+  return result;
 }
 
 export const restore: any = async (scr: any) => {
@@ -192,10 +186,12 @@ export const restore: any = async (scr: any) => {
 
 export const outAndResore: any = async (scr: any, maxTimes: number | undefined = 50) => {
   const ejectResult = await eject(scr);
+  console.log('call eject result: ', ejectResult);
   // 退出成功
   if (ejectResult.result === 0) {
     // 监测是否取走纸张
     const getSensorStatusResult = await getSensorStatus(scr);
+    console.log('getSensorStatusResult result: ', getSensorStatusResult);
     if (getSensorStatusResult.result === 0 && getSensorStatusResult?.sensor?.sensor1 === 0) {
       return await restore(scr);
     }

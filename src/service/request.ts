@@ -2,8 +2,8 @@ import { message } from 'antd';
 import axios from 'axios';
 
 // 请求路径
-const BaseUrl = 'http://localhost:8080'; // 主机及端口
-// const BaseUrl = 'http://kobezhang.natapp1.cc'
+// const BaseUrl = 'http://localhost:8080'; // 主机及端口
+const BaseUrl = 'http://kobezhang.natapp1.cc';
 
 //axios默认配置请求的api基础地址
 axios.defaults.baseURL = BaseUrl;
@@ -92,6 +92,6 @@ export default function request(url: string, options: any) {
     .catch((e) => {
       // 失败的回调
       console.log(`请求错误，错误码：${e}`);
-      return null;
+      return {};
     });
 }

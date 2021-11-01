@@ -6,7 +6,7 @@ export const openPIDC: any = async (pidc: any, maxTimes: any | undefined = 5) =>
   var result = await pidc.openDevice();
   console.log(JSON.stringify(result));
   if (result.result == 0) {
-    console.log("打开读卡器成功");
+    console.log("打开读卡器成功", result);
     return result;
   } else if (maxTimes <= 0 && result.result !== 0) {
     message.error('读卡设备打开错误，请联系管理员');
@@ -19,7 +19,7 @@ export const openPIDC: any = async (pidc: any, maxTimes: any | undefined = 5) =>
 
 export const getStatusPIDC: any = async (pidc: any, maxTimes: any | undefined = 5) => {
   var result = await pidc.getStatus();
-  console.log(JSON.stringify(result));
+  console.log('获取状态：', result);
   if (result.result == 0) {
     console.log("获取状态成功");
     return result;
@@ -33,8 +33,11 @@ export const getStatusPIDC: any = async (pidc: any, maxTimes: any | undefined = 
 }
 
 export const readPIDC: any = async (pidc: any, maxTimes: number | undefined = 5) => {
-  var result = await pidc.read();
-  console.log(JSON.stringify(result));
+  const cardReaderParam = {
+    action: 'track2break;ssictrack2',
+  }
+  var result = await pidc.read(cardReaderParam);
+  console.log('读卡结果', JSON.stringify(result));
   if (result.result == 0) {
     console.log("读卡成功");
     return result;
@@ -73,20 +76,24 @@ export const resetPIDC: any = async (pidc: any, maxTimes: number | undefined = 5
   }
 }
 
-export const closePIDC: any = async (pidc: any) => {
+export const closePIDC: any = async (pidc: any, maxTimes: number | undefined = 5) => {
   var result = await pidc.closeDevice();
-  console.log(JSON.stringify(result));
   if (result.result == 0) {
     console.log("关闭读卡器成功");
+    return result;
+  } else if (maxTimes < 0) {
+    console.log('关闭读卡器错误');
+    return result;
   } else {
     console.log("closePIDC()发生错误:" + result.message, '正在重新关闭');
-    return await closePIDC(pidc);
+    return await closePIDC(pidc, maxTimes -1);
   }
 }
 
 export const getStatusAndRead: any = async (pidc: any, maxTimes: number | undefined = 5) => {
   const status = await getStatusPIDC(pidc);
-  if (status.status === 0 && status.card === true) {
+  console.log('获取状态并读卡', status);
+  if (status.status === 0) {
     // 状态正常，可以读卡
     return await readPIDC(pidc);
   } else if (maxTimes <= 0 && !(status.status === 0 && status.card === true)) {

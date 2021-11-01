@@ -24,7 +24,7 @@ const Detail: FC = () => {
 
   const history: any = useHistory();
   // 硬件对象
-  const scr = new BOScanner({ "device": 'SCR' });
+  const scr = new BOScanner({ "device": 'IST' });
   // dummy data
   const { empcode = 'A2219', cnname = '吴向前' } = history.location.state?.user || {};
   const { orderId = '402847407be1c41e017be2b0e62c0075', orderNum = 'TEP202109140002' } = history.location.state?.record || {};
@@ -128,7 +128,7 @@ const Detail: FC = () => {
     // 扫描
     const scanPaperResult = await scanPapers();
     // 扫描成功
-    if (!scanPaperResult) {
+    if (scanPaperResult) {
       // 扫描成功，通过api获取识别结果
       const sendImageResult: any = await sendImage(empcode, orderId, orderNum, [base64File, ...paperBase64List]);
       console.log('识别图片完成：', sendImageResult);
