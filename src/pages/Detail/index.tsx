@@ -319,6 +319,14 @@ const Detail: FC = () => {
               </div>;
             }}
           />
+          <Column
+            title="备注"
+            width={150}
+            key="id"
+            render={(text: any, record: any, index: number) => {
+              return record?.remark || null;
+            }}
+          />
         </ColumnGroup>
       </Table>
     );

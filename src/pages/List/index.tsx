@@ -76,7 +76,7 @@ const List: FC = () => {
     },
     {
       title: '操作',
-      width: 100,
+      width: 150,
       key: 'id',
       render: (text: any, record: any, index: number) => {
         return (
@@ -93,7 +93,12 @@ const List: FC = () => {
   };
   const renderTable = () => {
     return (
-      <Table rowKey={(record) => record.billno} dataSource={dataList} columns={columns} pagination={false} scroll={{ x: 'max-content', y: 650 }} />
+      <Table
+        rowKey={(record) => record.billno}
+        dataSource={dataList}
+        columns={columns}
+        pagination={false}
+        scroll={{ x: 'max-content', y: 765 }} />
     );
   };
 

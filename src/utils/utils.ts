@@ -70,6 +70,7 @@ export const mergeDetailData = (data: any[], mergeFromIndex: number) => {
       // Object.keys(ocrDetail).length <= 0
     ) {
       mergeToIndex = index;
+      item.remark = '已修改';
       return item;
     }
   });
