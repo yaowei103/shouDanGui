@@ -46,8 +46,6 @@ const Detail: FC = () => {
   });
 
   useEffect(() => {
-    // 开启扫描仪
-    openDevice(scr);
     setTimeout(() => {
       const ele: any = document.getElementById('modalImgId');
       const width = ele && ele.width;
@@ -57,6 +55,12 @@ const Detail: FC = () => {
       }
     }, 1000)
   }, [imageModalVisible, currentWidth]);
+
+  // 打开扫描仪
+  useEffect(() => {
+    // 开启扫描仪
+    openDevice(scr);
+  }, []);
 
   const handleDetailData = (data: any[]) => {
     console.log('api resonse detail data: ', data);

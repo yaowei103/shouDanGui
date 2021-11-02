@@ -35,3 +35,7 @@ before use need reset
       异常 unlock 退纸。
 
 url       =   http://123.57.194.58:8080/shouDanGui/clientid={{ deviceNo }}
+
+疑问：
+1，扫描模块，模拟器里边，第一次扫描如果getStatus监测到没纸，模拟器里边放纸，进行第二次扫描，的时候获取状态发生错误，显示设备连接已断开；
+2，扫描模块，调用eject的时候，模拟器返回result为-1，设备连接已断开，文档里边eject成功以后是返回0, 是eject错误了，还是调用eject成功以后的状态码就是-1；

@@ -1,37 +1,30 @@
-import { message, Result } from 'antd';
+import { message } from 'antd';
 
-export const openDevice: any = async (scr: any, maxTimes: number | undefined = 5) => {
+export const openDevice: any = async (scr: any) => {
   var result = await scr.openDevice({
     scanner: true,
     ist: true,
   });
   if (result.result == 0) {
     console.log("打开设备成功");
-    return result;
-  } else if (maxTimes <= 0 && result.result === -1) {
-    message.error('打开扫描仪错误，已尝试10次！请联系管理员');
-    return result;
   } else {
-    console.log("openScanner发生错误:", result.message, `正在第${11 - maxTimes}次重新打开`);
-    return await openDevice(scr, maxTimes - 1);
+    console.log("openScanner发生错误:", result);
+    message.error('打开扫描仪发生错误，请联系管理员')
   }
+  return result;
 }
 
-export const resetDevice: any = async (scr: any, maxTimes: number | undefined = 5) => {
+export const resetDevice: any = async (scr: any) => {
   var result = await scr.resetDevice();
   if (result.result === 0) {
     console.log("重置设备成功");
-    return result;
-  } else if (maxTimes < 0 && result.result !== 0) {
-    message.error('重置扫描发生错误，以尝试10次！');
-    return result;
   } else {
-    console.log("重置设备发生错误，正在重新尝试:" + result.message);
-    return await resetDevice(scr, maxTimes - 1);
+    console.log("重置设备发生错误，正在重新尝试:" + result);
   }
+  return result;
 }
 
-export const scan: any = async (scr: any, maxTimes: number | undefined = 5) => {
+export const scan: any = async (scr: any) => {
   var param = {
     image_base64: true,
   };
@@ -49,12 +42,8 @@ export const scan: any = async (scr: any, maxTimes: number | undefined = 5) => {
   } else if (result.result === 29) {
     message.error('无纸, 请放入纸张');
     return result;
-  } else if (result.result === -1 && maxTimes <= 0) {
-    message.error('扫描发生错误，以尝试10次！');
-    return result;
   } else {
-    console.log("扫描发生错误:", result.message, `正在第${11 - maxTimes}次重新打开`);
-    return await scan(scr, maxTimes - 1);
+    return result;
   }
 }
 
@@ -112,52 +101,43 @@ export const closeDevice = async (scr: any) => {
   }
 }
 
-export const getStatus: any = async (scr: any, maxTimes: number | undefined = 5) => {
+export const getStatus: any = async (scr: any) => {
   var result = await scr.getStatus();
   if (result.result == 0) {
     console.log("获取状态成功");
-    return result;
-  } else if (maxTimes < 0 && result.result !== 0) {
-    console.log('获取状态发生错误，请联系管理员');
-    message.error('获取状态发生错误，请联系管理员');
-  } else {
-    console.log("获取状态发生错误, 正在重新尝试:" + result.message);
-    return await getStatus(scr, maxTimes - 1);
+  }else {
+    console.log("获取状态发生错误" + result.message);
   }
+  return result;
 }
 
-export const getSensorStatus: any = async (scr: any, maxTimes: number | undefined = 10) => {
+export const getSensorStatus: any = async (scr: any) => {
   var result = await scr.call("get_sensor_status");
   console.log('获取获取传感器状态成功：', result);
   if (result.result == 0) {
-    return result;
-  } else if (maxTimes < 0 && result.result !== 0) {
-    message.error('获取传感器错误，请退出重试！');
-    console.log('获取传感器错误，请退出重试！');
-    return result;
   } else {
     console.log("getSensorStatus()发生错误:" + result.message);
-    return await getSensorStatus(scr, maxTimes - 1);
   }
+  return result;
 }
 
-export const getStatusAndScan: any = async (scr: any, maxTimes: number | undefined = 1) => {
+export const getStatusAndScan: any = async (scr: any) => {
   const status = await getStatus(scr);
   console.log('getStatusAndScan status', status);
   // 状态正常或者前盖打开， 并且扫描口有纸
-  if ((status?.status === 0 || status?.status === -20) && status?.feeder) {
+  if (status?.result === 0 && status?.feeder) {
     // 状态正常，可以读卡
     return await scan(scr);
-  } else if (maxTimes <= 0 && status?.status !== 0 && status?.status !== -20) {
-    console.log('getStatusAndRead error, 超时, status.status:', status?.status, 'status.feeder:', status?.feeder);
-    if (status?.status > 0) {
-      console.log('扫描设备警告');
-    }
-    message.error('扫描超时，请退出重试');
+  } else if (status?.result === 0 && !status?.feeder) {
+    message.error('未放纸，请放置纸张');
+    console.log('未放纸');
+    return {
+      ...status,
+      result: -1
+    };
   } else {
-    // await openDevice(scr);
-    await resetDevice(scr);
-    return await getStatusAndScan(scr, maxTimes - 1);
+    message.error(status?.status_message || '获取扫描仪状态发生错误');
+    return status;
   }
 };
 
@@ -184,21 +164,23 @@ export const restore: any = async (scr: any) => {
   }
 }
 
-export const outAndResore: any = async (scr: any, maxTimes: number | undefined = 50) => {
+export const outAndResore: any = async (scr: any) => {
   const ejectResult = await eject(scr);
   console.log('call eject result: ', ejectResult);
   // 退出成功
   if (ejectResult.result === 0) {
     // 监测是否取走纸张
-    const getSensorStatusResult = await getSensorStatus(scr);
-    console.log('getSensorStatusResult result: ', getSensorStatusResult);
-    if (getSensorStatusResult.result === 0 && getSensorStatusResult?.sensor?.sensor1 === 0) {
-      return await restore(scr);
-    }
-  } else if (maxTimes < 0) {
-    console.log('退出文件失败，已经尝试50次，请联系管理员');
-    return ejectResult;
+    const timer = setInterval(async () => {
+      const getSensorStatusResult = await getSensorStatus(scr);
+      console.log('getSensorStatusResult result: ', getSensorStatusResult);
+      if (getSensorStatusResult.result === 0 && getSensorStatusResult?.sensor?.sensor1 === 0) {
+        clearInterval(timer);
+        return await restore(scr);
+      }
+    }, 3000)
   } else {
-    return await outAndResore(scr, maxTimes - 1);
+    console.log('退出文件失败，请重新尝试，或联系管理员');
+    message.error('退出文件失败，请重新尝试，或联系管理员');
+    return ejectResult;
   }
 };

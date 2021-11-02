@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import { Form, Input, Button, Row, Col, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
-import { openPIDC, closePIDC, getStatusAndRead, resetPIDC } from '@/components/boCard';
+import { openPIDC, cancelPIDC, getStatusAndRead, resetPIDC } from '@/components/boCard';
 import icon from '@/assets/icon-card.png';
 import { logon, getPhoneCode } from '@/service/api';
 import Loading from '@/components/Loading';
@@ -62,8 +62,6 @@ const Login: FC = () => {
 
   const payByCard = async () => {
     console.log('payCard');
-    await openPIDC(pidc);
-    console.log('open ipdc');
     await resetPIDC(pidc);
     console.log('开始读卡');
     const readResult = await getStatusAndRead(pidc);
@@ -87,6 +85,11 @@ const Login: FC = () => {
       window.location.href = `https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid=${AppSecret}&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=REDIRECT_URI&loginTmpCode=${loginTmpCode}`;
     }
   };
+
+  useEffect(() => {
+    openPIDC(pidc);
+    console.log('open ipdc');
+  }, []);
 
   useEffect(() => {
     if (currentTab === '1') {// card logon
@@ -113,16 +116,14 @@ const Login: FC = () => {
         }
       }
       //其他情况，关闭设备
-      closePIDC(pidc);
+      cancelPIDC(pidc);
       clearInterval(timerRef.current);
       setGetCodeBtnLoading(0);
     } else if (currentTab === '2') {
       console.log('phone logon');
       //其他情况，关闭设备
-      closePIDC(pidc);
+      cancelPIDC(pidc);
     }
-    
-    
     
     // 取消注册的事件
     return () => {

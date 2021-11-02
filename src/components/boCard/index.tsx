@@ -53,15 +53,16 @@ export const readPIDC: any = async (pidc: any, maxTimes: number | undefined = 5)
   }
 }
 
-// export const cancelPIDC = async (pidc: any) => {
-//   var result = await pidc.cancel();
-//   console.log(JSON.stringify(result));
-//   if (result.result == 0) {
-//     console.log("取消读卡成功");
-//   } else {
-//     console.log("cancelPIDC()发生错误:" + result.message);
-//   }
-// }
+export const cancelPIDC = async (pidc: any) => {
+  var result = await pidc.cancel();
+  console.log(JSON.stringify(result));
+  if (result.result == 0) {
+    console.log("取消读卡成功");
+  } else {
+    console.log("cancelPIDC()发生错误:" + result.message);
+  }
+  return result;
+}
 
 export const resetPIDC: any = async (pidc: any, maxTimes: number | undefined = 5) => {
   var result = await pidc.resetDevice();
