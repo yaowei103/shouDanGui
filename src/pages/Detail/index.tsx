@@ -107,7 +107,9 @@ const Detail: FC = () => {
       } = res;
       console.log('监听函数返回，正面图片', front_image_base64);
       console.log('监听函数返回，反面图片', back_image_base64);
-      imgList.push(back_image_base64 as never);
+      if (back_image_base64) {
+        imgList.push(`data:image/png;base64,${back_image_base64}`);
+      }
       // setPaperBase64List(oldList);
     });
     console.log('开始获取状态并扫描');
