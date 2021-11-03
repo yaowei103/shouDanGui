@@ -115,6 +115,7 @@ export const getSensorStatus: any = async (scr: any) => {
   var result = await scr.call("get_sensor_status");
   console.log('获取获取传感器状态成功：', result);
   if (result.result == 0) {
+    console.log('getSensorStatus()', result);
   } else {
     console.log("getSensorStatus()发生错误:" + result.message);
   }
@@ -148,7 +149,7 @@ export const getStatusAndScan: any = async (scr: any) => {
 
 export const eject: any = async (scr: any) => {
   var result = await scr.call("eject");
-  console.log("eject()结果:" + result);
+  console.log("eject()结果:", result);
   return result;
 }
 
