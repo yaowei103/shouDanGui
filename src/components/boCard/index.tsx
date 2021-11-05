@@ -32,7 +32,7 @@ export const getStatusPIDC: any = async (pidc: any, maxTimes: any | undefined = 
   }
 }
 
-export const readPIDC: any = async (pidc: any, maxTimes: number | undefined = 5) => {
+export const readPIDC: any = async (pidc: any) => {
   const cardReaderParam = {
     action: 'track2break;ssictrack2',
   }
@@ -42,14 +42,11 @@ export const readPIDC: any = async (pidc: any, maxTimes: number | undefined = 5)
     console.log("读卡成功");
     return result;
   } else if (result.result == -4) {
-    console.log("取消读卡动作");
-    return await readPIDC(pidc);
-  } else if (maxTimes <= 0 && result.result !== 0) {
-    message.error('读卡错误，已尝试10次！请联系管理员');
+    console.log("取消读卡动作", result);
     return result;
   } else {
-    console.log("readPIDC()发生错误:", result.message, `正在第${11 - maxTimes}次重新打开`);
-    return await readPIDC(pidc, maxTimes - 1);
+    console.log('读卡错误', result);
+    return result;
   }
 }
 
@@ -64,46 +61,38 @@ export const cancelPIDC = async (pidc: any) => {
   return result;
 }
 
-export const resetPIDC: any = async (pidc: any, maxTimes: number | undefined = 5) => {
+export const resetPIDC: any = async (pidc: any) => {
   var result = await pidc.resetDevice();
   console.log('resetCard result:', result);
   if (result.result == 0) {
     return result;
-  } else if (maxTimes <= 0 && result.result !== 0) {
-    console.log('重置读卡器错误，已尝试10次');
-    return result;
   } else {
-    return await resetPIDC(pidc, maxTimes - 1);
+    console.log('重置读卡器错误');
+    return result;
   }
 }
 
-export const closePIDC: any = async (pidc: any, maxTimes: number | undefined = 5) => {
+export const closePIDC: any = async (pidc: any) => {
   var result = await pidc.closeDevice();
   if (result.result == 0) {
     console.log("关闭读卡器成功");
     return result;
-  } else if (maxTimes < 0) {
+  } else {
     console.log('关闭读卡器错误');
     return result;
-  } else {
-    console.log("closePIDC()发生错误:" + result.message, '正在重新关闭');
-    return await closePIDC(pidc, maxTimes -1);
   }
 }
 
-export const getStatusAndRead: any = async (pidc: any, maxTimes: number | undefined = 5) => {
+export const getStatusAndRead: any = async (pidc: any) => {
   const status = await getStatusPIDC(pidc);
   console.log('获取状态并读卡', status);
   if (status.status === 0) {
     // 状态正常，可以读卡
     return await readPIDC(pidc);
-  } else if (maxTimes <= 0 && !(status.status === 0 && status.card === true)) {
-    console.log('getStatusAndRead error, 超时');
-    message.error('读卡超时，请尝试其他登录方式');
   } else {
-    await openPIDC(pidc);
-    await resetPIDC(pidc);
-    return await getStatusAndRead(pidc);
+    console.log('getStatusAndRead error', status);
+    message.error('获取读卡器状态失败');
+    return status;
   }
 };
 

@@ -9,6 +9,11 @@
   <script src="https://g.alicdn.com/dingding/dinglogin/0.0.5/ddLogin.js"></script>
   <script src="./utils/BODevice.js"></script>
   <script src="./utils/base64.js"></script>
+  <script>
+    // 初始化ist，kidc
+    window.kidc = new BOCardReader({ "device": 'KIDC' });
+    window.ist = new BOScanner({ "device": 'IST' });
+  </script>
 </head>
 
 <body>

@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 import { Modal, Table, Button, Input, message } from 'antd';
 import { useHistory } from 'react-router-dom';
 import styles from './index.less';
@@ -18,13 +18,15 @@ const Detail: FC = () => {
   const [rotate, setRotate] = useState(0);
   const [currentWidth, setCurrentWidth] = useState(0);
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [paperBase64List, setPaperBase64List] = useState([]);
   const [visible, setVisible] = useState(true);
   const [submitDisable, setSubmitDisable] = useState(false);
 
   const history: any = useHistory();
   // 硬件对象
-  const scr = new BOScanner({ "device": 'IST' });
+  const ist = window.ist;
+  useEffect(() => {
+    console.log('------------------生命周期发生变化-----------------');
+  }, [ist]);
   // dummy data
   const { empcode, cnname } = history.location.state?.user || {};
   const { sid, billno } = history.location.state?.record || {};
@@ -58,7 +60,7 @@ const Detail: FC = () => {
   // 打开扫描仪
   useEffect(() => {
     // 开启扫描仪
-    openDevice(scr);
+    openDevice(ist);
   }, []);
 
   const handleDetailData = (data: any[]) => {
@@ -90,7 +92,8 @@ const Detail: FC = () => {
     setSubmitDisable(false);
     if (submitResult.code === 200) {
       message.success('提交成功');
-      history.push('/', {});
+      // history.push('/', {});
+      window.location.href = process.env.NODE_ENV === 'development' ? '/' : '/shouDanGui/';
     } else {
       message.error('提交失败，请重新提交')
     }
@@ -98,9 +101,9 @@ const Detail: FC = () => {
 
   const scanPapers: any = async () => {
     console.log('注册监听函数');
-    scr.off('onScanPage');
+    ist.off('onScanPage');
     const imgList: any[] = [];
-    scr.on('onScanPage', (res: any) => {
+    ist.on('onScanPage', (res: any) => {
       const {
         back_image_base64,
         front_image_base64,
@@ -113,7 +116,7 @@ const Detail: FC = () => {
       // setPaperBase64List(oldList);
     });
     console.log('开始获取状态并扫描');
-    const getStatusAndScanResult = await getStatusAndScan(scr);
+    const getStatusAndScanResult = await getStatusAndScan(ist);
     console.log('扫描完成，结果：', getStatusAndScanResult);
     if (getStatusAndScanResult?.result === 0) {
       message.success('扫描完成，正在识别您的单据，请耐心等待！');
@@ -153,10 +156,13 @@ const Detail: FC = () => {
 
   const handleModalCancel = async () => {
     console.log('Clicked cancel button');
-    const outResult = await outAndResore(scr);
+    const outResult = await outAndResore(ist);
     if (outResult.result === 0) {
       setVisible(false);
-      history.push('/', {});
+      // history.push('/', {});
+      const url = process.env.NODE_ENV === 'development' ? '/' : '/shouDanGui/';
+      console.log('退出成功，跳转页面', url);
+      window.location.href = url;
     } else {
       message.error('退出文件失败，请重新退出');
     }

@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Table, Button, message } from 'antd';
+import { Table, Button, message, Modal } from 'antd';
 // import { Link } from 'react-router-dom';
 import Loading from '@/components/Loading';
 import { useHistory } from 'react-router-dom';
@@ -27,12 +27,14 @@ const List: FC = () => {
   ];
   const [dataList, setDataList] = useState(dataSource);
   const [showLoading, setShowLoading] = useState(true);
+  const [tipVisible, setTipVisible] = useState(false);
 
   const getDataList = async () => {
     const res = await getList(history.location.state?.user?.empcode);
     if (res?.code === 200) {
       setDataList(res.data.atreturn.length ? res.data.atreturn : dataSource);
     } else {
+      setTipVisible(true);
       message.error('列表请求错误!');
     }
     setShowLoading(false);
@@ -102,9 +104,15 @@ const List: FC = () => {
     );
   };
 
+  const handleGoToLononpage = () => {
+    setTipVisible(false);
+    window.location.href = process.env.NODE_ENV === 'development' ? '/' : '/shouDanGui/';
+  };
+
   const [emplyeeId = '', emplyeeName = ''] = dataList[0] && dataList[0].expman.split('-') || [];
   return (
     <>
+      <Loading show={showLoading} />
       <div className={styles.list}>
         <div className={styles.header}>纳铁福智能收单柜</div>
         <div className={styles.body}>
@@ -118,7 +126,35 @@ const List: FC = () => {
         </div>
         <div className={styles.footer}>@纳铁福版权所有</div>
       </div>
-      <Loading show={showLoading} />
+      {/* <Modal
+        // className={styles.imageModal}
+        // title=""
+        // visible={tipVisible}
+        // width={800}
+        // onOk={handleGoToLononpage}
+        // // confirmLoading={confirmLoading}
+        // // onCancel={handleImgModelHide}
+        // closable={true} // 右上角关闭按钮
+        // okText="确定，重新登录"
+        // // cancelText="取消，退出登录"
+        // maskClosable={true} // 点击蒙层关闭
+        // centered // 垂直居中
+        // // footer={true}
+        className={styles.modalBody}
+        title="提示"
+        width={720}
+        visible={tipVisible}
+        onOk={handleGoToLononpage}
+        // confirmLoading={confirmLoading}
+        // onCancel={handleModalCancel}
+        closable={false} // 右上角关闭按钮
+        okText="确定，开始识别单据"
+        cancelText={''}
+        maskClosable={false} // 点击蒙层关闭
+        centered // 垂直居中
+      >
+        <p>获取报销列表失败，请重新登录！</p>
+      </Modal> */}
     </>
   );
 }

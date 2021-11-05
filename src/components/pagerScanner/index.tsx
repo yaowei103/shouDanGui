@@ -157,7 +157,7 @@ export const restore: any = async (scr: any) => {
   var result = await scr.call("restore");
   console.log(JSON.stringify(result));
   if (result.result == 0) {
-    console.log("收回托盘成功");
+    console.log("收回托盘成功", result);
     return result;
   } else {
     console.log("restore()发生错误:" + result.message);
@@ -171,14 +171,17 @@ export const outAndResore: any = async (scr: any) => {
   // 退出成功
   if (ejectResult.result === 0) {
     // 监测是否取走纸张
-    const timer = setInterval(async () => {
-      const getSensorStatusResult = await getSensorStatus(scr);
-      console.log('getSensorStatusResult result: ', getSensorStatusResult);
-      if (getSensorStatusResult.result === 0 && getSensorStatusResult?.sensor?.sensor1 === 0) {
-        clearInterval(timer);
-        return await restore(scr);
-      }
-    }, 3000)
+    message.success('请取走退出纸张');
+    return new Promise((resolve, reject) => {
+      const timer = setInterval(async () => {
+        const getSensorStatusResult = await getSensorStatus(scr);
+        console.log('getSensorStatusResult result: ', getSensorStatusResult);
+        if (getSensorStatusResult.result === 0 && getSensorStatusResult?.sensor?.sensor1 === 0) {
+          clearInterval(timer);
+          resolve(restore(scr));
+        }
+      }, 3000)
+    })
   } else {
     console.log('退出文件失败，请重新尝试，或联系管理员');
     message.error('退出文件失败，请重新尝试，或联系管理员');

@@ -22,7 +22,10 @@ const Login: FC = () => {
   // const AppKey = 'dingdsldijwnccbqy4xj';
   const AppSecret = 'jS93tWpbVnGqjxJ8YgI5P4whqbL5iuoY2GBMXAHTUA-UUJ1DAq-XdwpWWSHXvQPH';
 
-  const pidc = new BOCardReader({ "device": 'KIDC' });
+  const kidc = window.kidc;
+  useEffect(() => {
+    console.log('---------------读卡器生命周期---------------');
+  }, [kidc]);
 
   const [phoneLogonState, setPhoneLogonState] = useState({
     name: '',
@@ -62,11 +65,11 @@ const Login: FC = () => {
 
   const payByCard = async () => {
     console.log('payCard');
-    await resetPIDC(pidc);
+    await resetPIDC(kidc);
     console.log('开始读卡');
-    const readResult = await getStatusAndRead(pidc);
+    const readResult = await getStatusAndRead(kidc);
     console.log('读卡结果', readResult);
-    // pidc.on('statusChange', async () => {
+    // kidc.on('statusChange', async () => {
     if (readResult.result === 0) {
       const cardId = readResult.id;
       console.log('读卡结果 cardId：', cardId);
@@ -87,7 +90,7 @@ const Login: FC = () => {
   };
 
   useEffect(() => {
-    openPIDC(pidc);
+    openPIDC(kidc);
     console.log('open ipdc');
   }, []);
 
@@ -116,13 +119,13 @@ const Login: FC = () => {
         }
       }
       //其他情况，关闭设备
-      cancelPIDC(pidc);
+      cancelPIDC(kidc);
       clearInterval(timerRef.current);
       setGetCodeBtnLoading(0);
     } else if (currentTab === '2') {
       console.log('phone logon');
       //其他情况，关闭设备
-      cancelPIDC(pidc);
+      cancelPIDC(kidc);
     }
     
     // 取消注册的事件
