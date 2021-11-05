@@ -2,7 +2,7 @@ import React, { FC, useEffect, useRef, useState } from 'react';
 import { Modal, Table, Button, Input, message } from 'antd';
 import { useHistory } from 'react-router-dom';
 import styles from './index.less';
-import { getStatusAndScan, openDevice, outAndResore } from '@/components/pagerScanner';
+import { getStatusAndScan, openDevice, outAndResore, unlock } from '@/components/pagerScanner';
 import { sendImage, submitData } from '@/service/api';
 import { drag, mergeDetailData } from '@/utils/utils';
 import classNames from 'classnames';
@@ -122,11 +122,18 @@ const Detail: FC = () => {
       message.success('扫描完成，正在识别您的单据，请耐心等待！');
       setModalMsg('扫描完成，正在识别您的单据，请耐心等待！');
       console.log('扫描完成，正在识别您的单据，请耐心等待！');
+      return imgList;
+    } else if (getStatusAndScanResult?.result === -10) {
+      message.error('扫描过程卡纸，请解决卡纸');
+      setModalMsg('扫描过程卡纸，请解决卡纸');
+      unlock(ist);
+      return [];
     } else {
       message.error('扫描出错，请整理好单据，重新放入扫描窗口再次扫描');
       setModalMsg('扫描出错，请将单据整理好，重新放入扫描窗口，并点击确定重新扫描！');
+      return [];
     }
-    return imgList;
+    
   };
 
   const handleModalOk = async () => {
