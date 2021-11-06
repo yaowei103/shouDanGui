@@ -38,7 +38,7 @@ const Detail: FC = () => {
   const [modalMsg, setModalMsg] = useState(modalMsgInit)
 
 
-  type State = {
+  interface State {
     dataSource: any[];
   }
 

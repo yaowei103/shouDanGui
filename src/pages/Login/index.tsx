@@ -28,7 +28,6 @@ const Login: FC = () => {
   }, [kidc]);
 
   const [phoneLogonState, setPhoneLogonState] = useState({
-    name: '',
     phoneNumber: '',
     code: ''
   });
@@ -203,7 +202,7 @@ const Login: FC = () => {
   const timerRef:any = useRef();
 
   const getPhoneMsg = async () => {
-    const { name, phoneNumber } = phoneLogonState;
+    const { phoneNumber } = phoneLogonState;
     setGetCodeBtnLoading(59);
     timerRef.current = setInterval(() => {
       setGetCodeBtnLoading((getCodeBtnLoading) => {
@@ -239,18 +238,6 @@ const Login: FC = () => {
       // onFinish={onFinish}
       >
         <Form.Item
-          name="name"
-          rules={[{ required: true, message: '请输入姓名!' }]}
-        >
-          <Input
-            size="large"
-            value={phoneLogonState.name}
-            onChange={(e) => { handlePhoneLogonChange(e, 'name') }}
-            prefix={<UserOutlined className="site-form-item-icon" />}
-            placeholder="请输入姓名"
-          />
-        </Form.Item>
-        <Form.Item
           name="phoneNumber"
           rules={[{ required: true, pattern: new RegExp(/^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/), message: '请输入正确手机号码!' }]}
         >
@@ -280,7 +267,7 @@ const Login: FC = () => {
             <Col span={9}>
               <Button
                 type="primary"
-                disabled={!/^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/.test(phoneLogonState.phoneNumber) || phoneLogonState.name === ''}
+                disabled={!/^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/.test(phoneLogonState.phoneNumber)}
                 onClick={getPhoneMsg}
                 size="large"
                 className="login-form-button"
@@ -302,7 +289,7 @@ const Login: FC = () => {
             onClick={handlePhoneLogon}
             size="large"
             className="login-form-button"
-            disabled={!/^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/.test(phoneLogonState.phoneNumber) || phoneLogonState.name === '' || phoneLogonState.code === ''}
+            disabled={!/^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/.test(phoneLogonState.phoneNumber) || phoneLogonState.code === ''}
           >
             登录
           </Button>

@@ -126,20 +126,7 @@ const List: FC = () => {
         </div>
         <div className={styles.footer}>@纳铁福版权所有</div>
       </div>
-      {/* <Modal
-        // className={styles.imageModal}
-        // title=""
-        // visible={tipVisible}
-        // width={800}
-        // onOk={handleGoToLononpage}
-        // // confirmLoading={confirmLoading}
-        // // onCancel={handleImgModelHide}
-        // closable={true} // 右上角关闭按钮
-        // okText="确定，重新登录"
-        // // cancelText="取消，退出登录"
-        // maskClosable={true} // 点击蒙层关闭
-        // centered // 垂直居中
-        // // footer={true}
+      <Modal
         className={styles.modalBody}
         title="提示"
         width={720}
@@ -148,13 +135,19 @@ const List: FC = () => {
         // confirmLoading={confirmLoading}
         // onCancel={handleModalCancel}
         closable={false} // 右上角关闭按钮
-        okText="确定，开始识别单据"
+        okText="确定，退出登录"
         cancelText={''}
         maskClosable={false} // 点击蒙层关闭
+        footer={false}
         centered // 垂直居中
       >
-        <p>获取报销列表失败，请重新登录！</p>
-      </Modal> */}
+        <p className={styles.imageModalContainer} id="modalImgContainerId">
+          获取报销列表失败，请重新登录！
+        </p>
+        <div className={styles.imgModalBtnContainer}>
+          <Button type="primary" className={styles.btn} onClick={handleGoToLononpage} size="middle">确定，退出登录</Button>
+        </div>
+      </Modal>
     </>
   );
 }
