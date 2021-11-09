@@ -24,9 +24,6 @@ const Detail: FC = () => {
   const history: any = useHistory();
   // 硬件对象
   const ist = window.ist;
-  useEffect(() => {
-    console.log('------------------生命周期发生变化-----------------');
-  }, [ist]);
   // dummy data
   const { empcode, cnname } = history.location.state?.user || {};
   const { sid, billno } = history.location.state?.record || {};
@@ -84,7 +81,7 @@ const Detail: FC = () => {
   const handleSubmit = async () => {
     const reqBody = {
       orderNum: billno,
-      ticketData: state.dataSource,
+      dataList: state.dataSource,
     };
     console.log('submitData:', reqBody);
     setSubmitDisable(true);
@@ -238,7 +235,7 @@ const Detail: FC = () => {
             if (
               record.expensesDetail?.invoicenumber === record.ocrDetail?.number &&
               record.expensesDetail?.invoicecode === record.ocrDetail?.code ||
-              Object.keys(record.expensesDetail).length <= 0
+              Object.keys(record.expensesDetail || {}).length <= 0
             ) {
               return <img
                 onClick={() => { handleImgClick(record.imagePath || imgPlaceholder) }}
@@ -285,7 +282,7 @@ const Detail: FC = () => {
             width={150}
             key="id"
             render={(text: any, record: any, index: number) => {
-              const flag = record.expensesDetail.invoicenumber !== record.ocrDetail.number && Object.keys(record.expensesDetail).length <= 0;
+              const flag = record.expensesDetail.invoicenumber !== record.ocrDetail.number && Object.keys(record.expensesDetail || {}).length <= 0;
               return <div className={classNames(styles.inputDiv, flag ? styles.diffFlag : {})}>
                 <Input
                   size="middle"
@@ -303,7 +300,7 @@ const Detail: FC = () => {
             width={150}
             key="id"
             render={(text: any, record: any, index: number) => {
-              const flag = record.expensesDetail.invoicecode !== record.ocrDetail.code && Object.keys(record.expensesDetail).length <= 0;
+              const flag = record.expensesDetail.invoicecode !== record.ocrDetail.code && Object.keys(record.expensesDetail || {}).length <= 0;
               return <div className={classNames(styles.inputDiv, flag ? styles.diffFlag : {})}>
                 <Input
                   size="middle"
@@ -321,7 +318,7 @@ const Detail: FC = () => {
             width={150}
             key="id"
             render={(text: any, record: any, index: number) => {
-              const flag = (record.expensesDetail.amount !== record.ocrDetail.total && Object.keys(record.expensesDetail).length <= 0) || (record.expensesDetail.invoicenumber === record.ocrDetail.number && record.expensesDetail.invoicecode === record.ocrDetail.code && record.expensesDetail.amount !== Number(record.ocrDetail.total));
+              const flag = (record.expensesDetail.amount !== record.ocrDetail.total && Object.keys(record.expensesDetail || {}).length <= 0) || (record.expensesDetail.invoicenumber === record.ocrDetail.number && record.expensesDetail.invoicecode === record.ocrDetail.code && record.expensesDetail.amount !== Number(record.ocrDetail.total));
               return <div className={classNames(styles.inputDiv, flag ? styles.diffFlag : {})}>
                 <Input
                   size="middle"

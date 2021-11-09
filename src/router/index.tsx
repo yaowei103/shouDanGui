@@ -6,6 +6,9 @@ import Login from '../pages/Login';
 import List from '../pages/List';
 import Detail from '../pages/Detail';
 
+import ManageLogon from '../pages/manage/Login';
+import ManageList from '../pages/manage/List';
+
 // 页面异步chunk优化
 
 // const Login = loadable(() => import('../pages/Login'));
@@ -20,6 +23,8 @@ const Root = () => {
       <Route path="/login" component={Login} />
       <Route path="/list" component={List} />
       <Route path="/detail" component={Detail} />
+      <Route path="/manage/logon" component={ManageLogon} />
+      <Route path="/manage/list" component={ManageList} />
     </BrowserRouter>
   );
 };

@@ -1,0 +1,114 @@
+@import "../../../components/common/common.less";
+
+.detail {
+    :global {
+        .ant-table-header{
+            .ant-table-cell {
+                padding: 5px;
+            }
+        }
+        .ant-table-body{
+            .ant-table-cell {
+                padding: 5px;
+            }
+        }
+    }
+    height: 100%;
+    display:flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    .body{
+        flex-grow: 1;
+        height: calc(100% - 100px);
+        overflow: hidden;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        width: 80%;
+        min-width: 1170px;
+        .search {
+            margin-top: 30px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #666;
+            padding-bottom: 30px;
+            .label{
+                width: 100px;
+            }
+            .input {
+                width: 200px;
+            }
+            .btn{
+                margin-left: 10px;
+            }
+        }
+        .userInfo {
+        width: 100%;
+        margin-top: 20px;
+        padding: 25px 30px;
+        background: #ddd;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        font-size: 20px;
+        .infoItem {
+            margin-right: 35px;
+            .infoVal {
+            color: #535353b5;
+            }
+        }
+        }
+        .tableTitle {
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        .table {
+        margin-top: 20px;
+        width: 100%;
+        }
+        .btnContainer{
+        width: 100%;
+        margin-top: 20px;
+        display: flex;
+        justify-content: flex-end;
+        .pageBtn {
+            margin-left: 15px;
+        }
+        }
+    }
+    .inputDiv {
+        padding: 16px;
+    }
+    .diffFlag {
+        background: #ff0000;
+    }
+    .input {
+        background: transparent;
+    }
+    }
+    .imageModal {
+    .imageModalContainer {
+        width: 100%;
+        height: 500px;
+        overflow: hidden;
+        .modalImg{
+        position:absolute;
+        top:0;
+        left:0;
+        width: 100%;
+        }
+    }
+    .imgModalBtnContainer{
+        padding-top: 20px;
+        margin: 0 20px;
+        display: flex;
+        justify-content: flex-end;
+        border-top: 1px solid #e7e7e7;
+        position: relative;
+        .btn{
+        margin-left: 10px;
+        }
+    }
+}

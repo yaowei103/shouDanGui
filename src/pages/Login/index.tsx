@@ -53,6 +53,7 @@ const Login: FC = () => {
         user: data
       });
     } else {
+      resetPIDC(kidc);
       console.log('登录失败，请尝试其他方式登录');
       message.error('登录失败，请尝试其他方式登录');
     }

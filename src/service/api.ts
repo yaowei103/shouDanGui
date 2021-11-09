@@ -62,4 +62,23 @@ export const submitData = (data: any) => {
 //       'Content-Type': 'application/x-www-form-urlencoded',
 //     }
 //   });
-// };
+
+export const manageLogon = (req: any) => {
+  return request(`/manage/logon`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: req,
+    data: req
+  });
+};
+
+export const getManageList = (req: any) => {
+  return request(`/ticket?orderNum=${req}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  })
+}
