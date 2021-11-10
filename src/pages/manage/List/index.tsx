@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import Loading from '@/components/Loading';
 import { useHistory } from 'react-router-dom';
 import { getManageList } from '@/service/api';
+import { drag } from '@/utils/utils';
 import styles from './index.less';
 import imgPlaceholder from '@/assets/placeholder-1.jpeg';
 import { v4 as uuidv4 } from 'uuid';
@@ -12,138 +13,10 @@ const { Column, ColumnGroup } = Table;
 
 const List: FC = () => {
   const history: any = useHistory();
-  const dataSource: any[] = [
-    {
-      "orderNum": "OEP202110220012",
-      "dataList": null
-    },
-    {
-        "orderNum": "TEP202110190003",
-        "dataList": null
-    },
-    {
-        "orderNum": "TEP202110220006",
-        "dataList": [
-            {
-                "expensesDetail": null,
-                "ocrDetail": {
-                    "filePath": null,
-                    "tax": "6.96",
-                    "code": "3700171320",
-                    "number": "45485581",
-                    "total": "239.00",
-                    "title": "山东增值税普通发票",
-                    "stamp_info": "江西市南中区西龙假林酒店,37040219650319012501",
-                    "seat": null,
-                    "name": null
-                },
-                "originalOCRDetail": {
-                    "filePath": null,
-                    "tax": "6.96",
-                    "code": "3700171320",
-                    "number": "45485581",
-                    "total": "239.00",
-                    "title": "山东增值税普通发票",
-                    "stamp_info": "江西市南中区西龙假林酒店,37040219650319012501",
-                    "seat": null,
-                    "name": null
-                },
-                "equalInvoiceNum": false,
-                "equalInvoiceCode": false,
-                "equalInvoiceMon": false,
-                "imagePath": null,
-                "mark": false
-            },
-            {
-                "expensesDetail": {
-                    "amount": 40.0,
-                    "col1": "",
-                    "col2": "",
-                    "col3": "",
-                    "col4": "",
-                    "col5": "",
-                    "invoicecode": "150001973910",
-                    "invoiceno": "202109140004",
-                    "invoicenumber": "39854918",
-                    "name": "",
-                    "tax": 0.0,
-                    "trainl": "",
-                    "unitname": "",
-                    "unittaxno": ""
-                },
-                "ocrDetail": null,
-                "originalOCRDetail": null,
-                "equalInvoiceNum": false,
-                "equalInvoiceCode": false,
-                "equalInvoiceMon": false,
-                "imagePath": null,
-                "mark": false
-            },
-            {
-                "expensesDetail": {
-                    "amount": 5.0,
-                    "col1": "",
-                    "col2": "",
-                    "col3": "",
-                    "col4": "",
-                    "col5": "",
-                    "invoicecode": "132021991013",
-                    "invoiceno": "202109140005",
-                    "invoicenumber": "01406132",
-                    "name": "",
-                    "tax": 0.0,
-                    "trainl": "",
-                    "unitname": "",
-                    "unittaxno": ""
-                },
-                "ocrDetail": null,
-                "originalOCRDetail": null,
-                "equalInvoiceNum": false,
-                "equalInvoiceCode": false,
-                "equalInvoiceMon": false,
-                "imagePath": null,
-                "mark": false
-            },
-            {
-                "expensesDetail": {
-                    "amount": 2064.0,
-                    "col1": "",
-                    "col2": "",
-                    "col3": "",
-                    "col4": "",
-                    "col5": "",
-                    "invoicecode": "5000204130",
-                    "invoiceno": "202109140003",
-                    "invoicenumber": "02876587",
-                    "name": "",
-                    "tax": 116.83,
-                    "trainl": "",
-                    "unitname": "无锡协智网络科技有限公司",
-                    "unittaxno": "91320206MA1NP5YE02"
-                },
-                "ocrDetail": null,
-                "originalOCRDetail": null,
-                "equalInvoiceNum": false,
-                "equalInvoiceCode": false,
-                "equalInvoiceMon": false,
-                "imagePath": null,
-                "mark": false
-            }
-        ]
-    },
-    {
-        "orderNum": "TEP202110220008",
-        "dataList": null
-    },
-    {
-        "orderNum": "TEP202110220012",
-        "dataList": null
-    }
-  ];
-  const [dataList, setDataList] = useState(dataSource);
+  const [dataList, setDataList] = useState([]);
   const [showLoading, setShowLoading] = useState(false);
   const [tipVisible, setTipVisible] = useState(false);
-  const [searchStr, setSearchStr] = useState('');
+  const [text, setText] = useState('');
   //   image state
   const [currentImg, setCurrentImg] = useState('');
   const [imageModalVisible, setImageModalVisible] = useState(false);
@@ -152,9 +25,9 @@ const List: FC = () => {
 
   const getDataList = async () => {
     setShowLoading(true);
-    const res = await getManageList(searchStr);
+    const res = await getManageList(text);
     if (res?.code === 200) {
-      setDataList(res.data.length ? res.data : dataSource);
+      setDataList(res.data.length ? res.data : []);
     } else {
       setTipVisible(true);
       message.error('列表请求错误!');
@@ -165,10 +38,21 @@ const List: FC = () => {
     getDataList();
   }, []);
 
+  useEffect(() => {
+    setTimeout(() => {
+      const ele: any = document.getElementById('modalImgId');
+      const width = ele && ele.width;
+      const height = ele && ele.height;
+      if (ele) {
+        drag(ele, { l: -width * 0.8, r: width * 0.9, t: -height * 0.8, b: height * 1.4 });
+      }
+    }, 1000)
+  }, [imageModalVisible, currentWidth]);
+
   const handleImgClick = (img: string) => {
     console.log('handle img click', img);
-    setCurrentImg(img);
     setImageModalVisible(true);
+    setCurrentImg(img);
   }
 
   // 放大按钮
@@ -203,7 +87,7 @@ const List: FC = () => {
   };
   
   const renderTable = () => {
-    return dataList.map((item) => {
+    return dataList.map((item: any) => {
       if (!item?.dataList?.length) {
         return null;
       }
@@ -311,7 +195,7 @@ const List: FC = () => {
 
   const handleGoToLononpage = () => {
     setTipVisible(false);
-    window.location.href = process.env.NODE_ENV === 'development' ? '/' : '/shouDanGui/';
+    window.location.href = process.env.NODE_ENV === 'development' ? '/manage/logon' : '/shouDanGui/manage/logon';
   };
 
   return (
@@ -326,8 +210,10 @@ const List: FC = () => {
                 size="middle"
                 placeholder="请输入单据号"
                 className={styles.input}
-                value={searchStr}
-                onChange={(e: any) => { setSearchStr(e.currentTarget.value); }}
+                value={text}
+                onChange={(e: any) => {
+                  setText(e?.currentTarget?.value);
+                }}
               />
             <Button type="primary" className={styles.btn} onClick={getDataList} size="middle">搜索</Button>
           </div>
@@ -352,7 +238,7 @@ const List: FC = () => {
         footer={false}
         centered // 垂直居中
       >
-        <p className={styles.imageModalContainer} id="modalImgContainerId">
+        <p className={styles.tipText} id="modalImgContainerId">
           获取报销列表失败，请重新登录！
         </p>
         <div className={styles.imgModalBtnContainer}>
