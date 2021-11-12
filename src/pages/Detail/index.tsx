@@ -135,14 +135,8 @@ const Detail: FC = () => {
       console.log('扫描完成，正在识别您的单据，请耐心等待！');
       return imgList;
     } else if (getStatusAndScanResult?.result === -10) {
-      message.error('扫描过程卡纸，请解决卡纸');
+      // message.error('扫描过程卡纸，请解决卡纸');
       setModalMsg('扫描过程卡纸，请解决卡纸');
-      const unlockResult = await unlock(ist);
-      if (unlockResult.result === 0) {
-        message.success('扫描单元打开成功，请解决卡纸')
-      } else {
-        resetDevice(ist);
-      }
       return [];
     } else {
       message.error('扫描出错');
@@ -188,7 +182,7 @@ const Detail: FC = () => {
       console.log('退出成功，跳转页面', url);
       window.location.href = url;
     } else {
-      message.error('退出文件失败，请重新退出');
+      // message.error('退出文件失败，请重新退出');
       resetDevice(ist);
     }
   };

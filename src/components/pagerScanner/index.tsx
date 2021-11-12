@@ -133,6 +133,18 @@ export const getStatusAndScan: any = async (scr: any) => {
   if (status?.result === 0 && status.status_code === 0 && status?.feeder) {
     // 状态正常，可以读卡
     return await scan(scr);
+  } else if (status?.result === 0 && status?.status_code === -10) {
+    message.error('卡纸，请解决卡纸！');
+    const unlockResult = await unlock(ist);
+    if (unlockResult.result === 0) {
+      message.success('扫描单元打开成功，请解决卡纸')
+    } else {
+      resetDevice(ist);
+    }
+    return {
+      ...status,
+      result: -10
+    }
   } else if (status?.result === 0 && status?.status_code === -20) {
     message.error('设备前盖打开，请检查是否解决卡纸后未正确安装扫描仪！');
     return {
@@ -147,7 +159,7 @@ export const getStatusAndScan: any = async (scr: any) => {
       result: -1
     };
   } else {
-    message.error(status?.status_message || '获取扫描仪状态发生错误');
+    // message.error(status?.status_message || '获取扫描仪状态发生错误');
     return status;
   }
 };
@@ -197,8 +209,8 @@ export const outAndResore: any = async (scr: any) => {
       }, 3000)
     })
   } else {
-    console.log('退出文件失败，请重新尝试，或联系管理员');
-    message.error('退出文件失败，请重新尝试，或联系管理员');
+    console.log(ejectResult?.message || '退出文件失败，请重新尝试，或联系管理员');
+    message.error(ejectResult?.message || '退出文件失败，请重新尝试，或联系管理员');
     return ejectResult;
   }
 };
