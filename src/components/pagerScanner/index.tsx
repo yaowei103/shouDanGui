@@ -18,8 +18,10 @@ export const resetDevice: any = async (scr: any) => {
   var result = await scr.resetDevice();
   if (result.result === 0) {
     console.log("重置设备成功");
+    message.success('重置设备成功');
   } else {
-    console.log("重置设备发生错误，正在重新尝试:" + result);
+    console.log("重置设备发生错误" + result);
+    message.error('重置设备发生错误');
   }
   return result;
 }
@@ -57,6 +59,7 @@ export const unlock = async (scr: any) => {
     console.log("unlock()发生错误:" + result.message);
     message.success('弹出扫描仪发生错误');
   }
+  return result;
 }
 
 export const retain = async (scr: any) => {
@@ -67,8 +70,9 @@ export const retain = async (scr: any) => {
     message.success('存入文件成功');
   } else {
     console.log("retain()发生错误:" + result.message);
-    message.success('存入文件发生错误');
+    message.error('存入文件发生错误, 请联系管理员');
   }
+  return result;
 }
 
 export const trayUp = async (scr: any) => {
@@ -126,9 +130,15 @@ export const getStatusAndScan: any = async (scr: any) => {
   const status = await getStatus(scr);
   console.log('getStatusAndScan status', status);
   // 状态正常或者前盖打开， 并且扫描口有纸
-  if (status?.result === 0 && status?.feeder) {
+  if (status?.result === 0 && status.status_code === 0 && status?.feeder) {
     // 状态正常，可以读卡
     return await scan(scr);
+  } else if (status?.result === 0 && status?.status_code === -20) {
+    message.error('设备前盖打开，请检查是否解决卡纸后未正确安装扫描仪！');
+    return {
+      ...status,
+      result: -1
+    };
   } else if (status?.result === 0 && !status?.feeder) {
     message.error('未放纸，请放置纸张');
     console.log('未放纸');
@@ -176,9 +186,13 @@ export const outAndResore: any = async (scr: any) => {
       const timer = setInterval(async () => {
         const getSensorStatusResult = await getSensorStatus(scr);
         console.log('getSensorStatusResult result: ', getSensorStatusResult);
-        if (getSensorStatusResult.result === 0 && getSensorStatusResult?.sensor?.sensor1 === 0) {
+        if (getSensorStatusResult.result === 0 && getSensorStatusResult?.sensor?.sensor1 === 1) {
           clearInterval(timer);
           resolve(restore(scr));
+        } else if (getSensorStatusResult.result === 0 && getSensorStatusResult?.sensor?.sensor13 === 0) {
+          // 排至单元卡纸
+          message.error('排纸单元卡纸，请处理！');
+          await unlock(scr);
         }
       }, 3000)
     })

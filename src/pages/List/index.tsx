@@ -8,23 +8,7 @@ import styles from './index.less';
 
 const List: FC = () => {
   const history: any = useHistory();
-  const dataSource: any[] = [
-    {
-      "billno": "TEP202109140002",
-      "name": "测试数据",
-      "col1": "",
-      "col2": "",
-      "col3": "",
-      "col4": "",
-      "col5": "",
-      "expman": "A2219-吴向前",
-      "expmoney": 2459.0,
-      "invmoney": 2459.0,
-      "invnums": 3,
-      "reqdate": "2021-10-09",
-      "sid": "402847407be1c41e017be2b0e62c0075"
-    }
-  ];
+  const dataSource: any[] = [];
   const [dataList, setDataList] = useState(dataSource);
   const [showLoading, setShowLoading] = useState(true);
   const [tipVisible, setTipVisible] = useState(false);

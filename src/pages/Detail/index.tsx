@@ -2,7 +2,7 @@ import React, { FC, useEffect, useRef, useState } from 'react';
 import { Modal, Table, Button, Input, message } from 'antd';
 import { useHistory } from 'react-router-dom';
 import styles from './index.less';
-import { getStatusAndScan, openDevice, outAndResore, unlock } from '@/components/pagerScanner';
+import { resetDevice, getStatusAndScan, openDevice, outAndResore, unlock, retain } from '@/components/pagerScanner';
 import { sendImage, submitData } from '@/service/api';
 import { drag, mergeDetailData } from '@/utils/utils';
 import classNames from 'classnames';
@@ -31,18 +31,21 @@ const Detail: FC = () => {
 
   // const imgEle = useRef('modalImg');
 
-  const modalMsgInit = '请将单据整理好，带有二维码的封面放在第一页，然后封面朝下放入收单柜。';
+  const modalMsgInit = '请将单据整理好，带有二维码的封面放在第一页，然后封面朝上放入收单柜。';
   const [modalMsg, setModalMsg] = useState(modalMsgInit)
 
 
   interface State {
     dataSource: any[];
+    sendExpenseError: any;
   }
 
   const [state, setState] = useState<State>({
-    dataSource: []
+    dataSource: [],
+    sendExpenseError: {},
   });
 
+  // 图片预览
   useEffect(() => {
     setTimeout(() => {
       const ele: any = document.getElementById('modalImgId');
@@ -57,12 +60,15 @@ const Detail: FC = () => {
   // 打开扫描仪
   useEffect(() => {
     // 开启扫描仪
-    openDevice(ist);
+    const openResult = openDevice(ist);
+    if (openResult.result !== 0) {
+      resetDevice(ist);
+    }
   }, []);
 
-  const handleDetailData = (data: any[]) => {
+  const handleDetailData = (data: any) => {
     console.log('api resonse detail data: ', data);
-    const formatResult = data.map(item => {
+    const formatResult = data.compareDataList.map((item: any) => {
       item.id = uuidv4();
       if (item.ocrDetail === null) {
         item.ocrDetail = {};
@@ -74,7 +80,8 @@ const Detail: FC = () => {
     });
     setState({
       ...state,
-      dataSource: formatResult
+      dataSource: formatResult,
+      sendExpenseError: data.sendExpenseError,
     })
   };
 
@@ -82,15 +89,23 @@ const Detail: FC = () => {
     const reqBody = {
       orderNum: billno,
       dataList: state.dataSource,
+      sendExpenseError: state.sendExpenseError,
     };
     console.log('submitData:', reqBody);
     setSubmitDisable(true);
     const submitResult = await submitData(reqBody);
     setSubmitDisable(false);
     if (submitResult.code === 200) {
-      message.success('提交成功');
-      // history.push('/', {});
-      window.location.href = process.env.NODE_ENV === 'development' ? '/' : '/shouDanGui/';
+      if (submitResult.data) {
+        const retainResult = await retain(ist);
+        if (retainResult.result === 0) {
+          message.success('提交成功');
+          window.location.href = process.env.NODE_ENV === 'development' ? '/' : '/shouDanGui/';
+        }
+      } else {
+        message.error('单据提交异常，正在退出单据，请收好单据并联系管理员！');
+        handleCancelAndOutpaper();
+      }
     } else {
       message.error('提交失败，请重新提交')
     }
@@ -102,13 +117,12 @@ const Detail: FC = () => {
     const imgList: any[] = [];
     ist.on('onScanPage', (res: any) => {
       const {
-        back_image_base64,
+        // back_image_base64,
         front_image_base64,
       } = res;
       console.log('监听函数返回，正面图片', front_image_base64);
-      console.log('监听函数返回，反面图片', back_image_base64);
-      if (back_image_base64) {
-        imgList.push(`data:image/png;base64,${back_image_base64}`);
+      if (front_image_base64) {
+        imgList.push(`data:image/png;base64,${front_image_base64}`);
       }
       // setPaperBase64List(oldList);
     });
@@ -123,10 +137,16 @@ const Detail: FC = () => {
     } else if (getStatusAndScanResult?.result === -10) {
       message.error('扫描过程卡纸，请解决卡纸');
       setModalMsg('扫描过程卡纸，请解决卡纸');
-      unlock(ist);
+      const unlockResult = await unlock(ist);
+      if (unlockResult.result === 0) {
+        message.success('扫描单元打开成功，请解决卡纸')
+      } else {
+        resetDevice(ist);
+      }
       return [];
     } else {
-      message.error('扫描出错，请整理好单据，重新放入扫描窗口再次扫描');
+      message.error('扫描出错');
+      resetDevice(ist);
       setModalMsg('扫描出错，请将单据整理好，重新放入扫描窗口，并点击确定重新扫描！');
       return [];
     }
@@ -158,7 +178,7 @@ const Detail: FC = () => {
     }
   };
 
-  const handleModalCancel = async () => {
+  const handleCancelAndOutpaper = async () => {
     console.log('Clicked cancel button');
     const outResult = await outAndResore(ist);
     if (outResult.result === 0) {
@@ -169,6 +189,7 @@ const Detail: FC = () => {
       window.location.href = url;
     } else {
       message.error('退出文件失败，请重新退出');
+      resetDevice(ist);
     }
   };
 
@@ -180,7 +201,8 @@ const Detail: FC = () => {
     // 合并数据 并setState
     const mergeResult = mergeDetailData(newDataSource, i);
     setState({
-      dataSource: mergeResult
+      ...state,
+      dataSource: mergeResult,
     })
   };
 
@@ -358,7 +380,7 @@ const Detail: FC = () => {
           {renderTable()}
         </div>
         <div className={styles.btnContainer}>
-          <Button type="default" onClick={handleModalCancel} size="large">
+          <Button type="default" onClick={handleCancelAndOutpaper} size="large">
             取消并退出单据
           </Button>
           <Button className={styles.pageBtn} type="primary" disabled={submitDisable} onClick={handleSubmit} size="large">
@@ -374,7 +396,7 @@ const Detail: FC = () => {
         visible={visible}
         onOk={handleModalOk}
         confirmLoading={confirmLoading}
-        onCancel={handleModalCancel}
+        onCancel={handleCancelAndOutpaper}
         closable={false} // 右上角关闭按钮
         okText="确定，开始识别单据"
         cancelText="取消，退出登录"

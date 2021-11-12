@@ -2,11 +2,11 @@ import { message } from 'antd';
 import axios from 'axios';
 
 // 请求路径
-// const BaseUrl = 'http://localhost:8080'; // 主机及端口
+// const BaseUrl = 'http://localhost:8090'; // 主机及端口
 // const BaseUrl = 'http://kobezhang.natapp1.cc';
 
 // 内网
-const BaseUrl = 'http://10.50.52.55:8090';
+const BaseUrl = 'http://10.50.57.85:8090';
 
 
 //axios默认配置请求的api基础地址
