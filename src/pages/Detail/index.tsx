@@ -159,7 +159,7 @@ const Detail: FC = () => {
       // 扫描成功，通过api获取识别结果
       const sendImageResult: any = await sendImage(empcode, sid, billno, scanPaperResult);
       console.log('识别图片完成：', sendImageResult);
-      if (sendImageResult?.code === 200 && sendImageResult.data.length > 0) {
+      if (sendImageResult?.code === 200 && sendImageResult.data?.compareDataList.length > 0) {
         setConfirmLoading(false);
         setVisible(false);
         handleDetailData(sendImageResult.data);

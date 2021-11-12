@@ -54,10 +54,10 @@ export const unlock = async (scr: any) => {
   console.log(JSON.stringify(result));
   if (result.result == 0) {
     console.log("弹出扫描仪成功");
-    message.success('弹出扫描仪成功');
+    message.success('扫描单元打开成功，请解决卡纸')
   } else {
     console.log("unlock()发生错误:" + result.message);
-    message.success('弹出扫描仪发生错误');
+    message.success('弹出扫描仪发生错误, 请联系管理员');
   }
   return result;
 }
@@ -136,9 +136,7 @@ export const getStatusAndScan: any = async (scr: any) => {
   } else if (status?.result === 0 && status?.status_code === -10) {
     message.error('卡纸，请解决卡纸！');
     const unlockResult = await unlock(ist);
-    if (unlockResult.result === 0) {
-      message.success('扫描单元打开成功，请解决卡纸')
-    } else {
+    if (unlockResult.result !== 0) {
       resetDevice(ist);
     }
     return {
