@@ -8,6 +8,7 @@ import { drag, mergeDetailData } from '@/utils/utils';
 import classNames from 'classnames';
 import { v4 as uuidv4 } from 'uuid';
 import icon from '@/assets/icon-down.png';
+import successImg from '@/assets/icon-success.png';
 import imgPlaceholder from '@/assets/placeholder-1.jpeg';
 
 const { Column, ColumnGroup } = Table;
@@ -20,6 +21,7 @@ const Detail: FC = () => {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [visible, setVisible] = useState(true);
   const [submitDisable, setSubmitDisable] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const history: any = useHistory();
   // 硬件对象
@@ -92,15 +94,27 @@ const Detail: FC = () => {
       sendExpenseError: state.sendExpenseError,
     };
     console.log('submitData:', reqBody);
+    // 判断要提交的数据
+    for (let i=0; i < state.dataSource?.length; i++) {
+      const item = state.dataSource[i];
+      if (!item.expensesDetail?.invoicecode || !item.expensesDetail?.invoiceno || !item.expensesDetail?.amount) {
+        message.error('存在无法匹配的数据，无法报销');
+        return;
+      } else if (item?.expensesDetail?.amount !== Number(item?.ocrDetail?.total || 0)) {
+        message.error('报销金额不匹配');
+        return;
+      }
+    }
+
     setSubmitDisable(true);
     const submitResult = await submitData(reqBody);
-    setSubmitDisable(false);
     if (submitResult.code === 200) {
       if (submitResult.data) {
         const retainResult = await retain(ist);
         if (retainResult.result === 0) {
-          message.success('提交成功');
-          window.location.href = process.env.NODE_ENV === 'development' ? '/' : '/shouDanGui/';
+          // message.success('提交成功');
+          // window.location.href = process.env.NODE_ENV === 'development' ? '/' : '/shouDanGui/';
+          setSuccess(true);
         }
       } else {
         message.error('单据提交异常，正在退出单据，请收好单据并联系管理员！');
@@ -109,6 +123,7 @@ const Detail: FC = () => {
     } else {
       message.error('提交失败，请重新提交')
     }
+    setSubmitDisable(false);
   };
 
   const scanPapers: any = async () => {
@@ -178,14 +193,23 @@ const Detail: FC = () => {
     if (outResult.result === 0) {
       setVisible(false);
       // history.push('/', {});
-      const url = process.env.NODE_ENV === 'development' ? '/' : '/shouDanGui/';
-      console.log('退出成功，跳转页面', url);
-      window.location.href = url;
+      handleGoToLogonpage();
     } else {
       // message.error('退出文件失败，请重新退出');
       resetDevice(ist);
     }
   };
+
+  const handleGoToListpage = () => {
+    console.log('报销成功，回到list继续报销')
+    history.push('/list', { user: history.location.state.user});
+  }
+
+  const handleGoToLogonpage = () => {
+    const url = process.env.NODE_ENV === 'development' ? '/' : '/shouDanGui/';
+    console.log('退出成功，跳转页面', url);
+    window.location.href = url;
+  }
 
   // 修改数据
   const handleCellChange = (val: string, field: string, i: number) => {
@@ -217,6 +241,17 @@ const Detail: FC = () => {
       ele.style.top = '0';
       ele.style.left = '0';
     }
+  };
+
+  // 删除多余的ocr数据
+  const handleDel = (i: number) => {
+    const newDataSource = [...state.dataSource];
+    newDataSource.splice(i, 1);
+    // 合并数据 并setState
+    setState({
+      ...state,
+      dataSource: newDataSource,
+    })
   };
 
   // 放大按钮
@@ -352,7 +387,17 @@ const Detail: FC = () => {
             width={150}
             key="id"
             render={(text: any, record: any, index: number) => {
-              return record?.remark || null;
+              return record?.remark ? <span className={styles.mark}>{record?.remark}</span> : null;
+            }}
+          />
+          <Column
+            title="操作"
+            width={100}
+            key="id"
+            render={(text: any, record: any, index: number) => {
+              if (!record.expensesDetail?.invoicecode || !record.expensesDetail?.invoiceno || !record.expensesDetail?.amount) {
+                return <Button type="text" className={styles.delBtn} onClick={() => { handleDel(index); }} size="middle">删除</Button>
+              }
             }}
           />
         </ColumnGroup>
@@ -374,7 +419,7 @@ const Detail: FC = () => {
           {renderTable()}
         </div>
         <div className={styles.btnContainer}>
-          <Button type="default" onClick={handleCancelAndOutpaper} size="large">
+          <Button type="default" onClick={handleCancelAndOutpaper} size="large" disabled={submitDisable}>
             取消并退出单据
           </Button>
           <Button className={styles.pageBtn} type="primary" disabled={submitDisable} onClick={handleSubmit} size="large">
@@ -383,6 +428,7 @@ const Detail: FC = () => {
         </div>
       </div>
       <div className={styles.footer}>@纳铁福版权所有</div>
+      {/* 识别弹窗 */}
       <Modal
         className={styles.modalBody}
         title="提示"
@@ -394,6 +440,9 @@ const Detail: FC = () => {
         closable={false} // 右上角关闭按钮
         okText="确定，开始识别单据"
         cancelText="取消，退出登录"
+        cancelButtonProps={{
+          disabled: confirmLoading
+        }}
         maskClosable={false} // 点击蒙层关闭
         centered // 垂直居中
       >
@@ -402,17 +451,14 @@ const Detail: FC = () => {
           {modalMsg}
         </p>
       </Modal>
+      {/* 图片预览 */}
       <Modal
         className={styles.imageModal}
         title=""
         visible={imageModalVisible}
         width={800}
-        // onOk={handleModalOk}
-        // confirmLoading={confirmLoading}
         onCancel={handleImgModelHide}
         closable={true} // 右上角关闭按钮
-        // okText="确定，开始识别单据"
-        // cancelText="取消，退出登录"
         maskClosable={true} // 点击蒙层关闭
         centered // 垂直居中
         footer={false}
@@ -425,6 +471,29 @@ const Detail: FC = () => {
           <Button type="primary" className={styles.btn} onClick={handleSmallerClick} size="middle">缩小</Button>
           <Button type="primary" className={styles.btn} onClick={handleRotateClick} size="middle">旋转</Button>
         </div>
+      </Modal>
+      {/* 提交成功 */}
+      <Modal
+        className={styles.modalBody}
+        title="提示"
+        width={720}
+        visible={success}
+        onOk={handleGoToListpage}
+        // confirmLoading={confirmLoading}
+        onCancel={handleGoToLogonpage}
+        closable={false} // 右上角关闭按钮
+        okText="确定，继续报销"
+        cancelText="取消，退出登录"
+        cancelButtonProps={{
+          disabled: confirmLoading
+        }}
+        maskClosable={false} // 点击蒙层关闭
+        centered // 垂直居中
+      >
+        <p className={styles.tipContent}>
+          <img className={styles.modalIcon} src={successImg} />
+          单据提交成功，继续报销吗？
+        </p>
       </Modal>
     </div>
   );

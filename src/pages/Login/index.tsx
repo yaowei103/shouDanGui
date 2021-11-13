@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import { Form, Input, Button, Row, Col, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
-import { openPIDC, cancelPIDC, getStatusAndRead, resetPIDC } from '@/components/boCard';
+import { cancelPIDC, getStatusAndRead, resetPIDC } from '@/components/boCard';
 import icon from '@/assets/icon-card.png';
 import { logon, getPhoneCode } from '@/service/api';
 import Loading from '@/components/Loading';
@@ -23,9 +23,6 @@ const Login: FC = () => {
   const AppSecret = 'jS93tWpbVnGqjxJ8YgI5P4whqbL5iuoY2GBMXAHTUA-UUJ1DAq-XdwpWWSHXvQPH';
 
   const kidc = window.kidc;
-  useEffect(() => {
-    console.log('---------------读卡器生命周期---------------');
-  }, [kidc]);
 
   const [phoneLogonState, setPhoneLogonState] = useState({
     phoneNumber: '',
@@ -65,7 +62,7 @@ const Login: FC = () => {
 
   const payByCard = async () => {
     console.log('payCard');
-    await resetPIDC(kidc);
+    // await resetPIDC(kidc);
     console.log('开始读卡');
     const readResult = await getStatusAndRead(kidc);
     console.log('读卡结果', readResult);
@@ -89,10 +86,10 @@ const Login: FC = () => {
     }
   };
 
-  useEffect(() => {
-    openPIDC(kidc);
-    console.log('open ipdc');
-  }, []);
+  // useEffect(() => {
+  //   openPIDC(kidc);
+  //   console.log('open ipdc');
+  // }, []);
 
   useEffect(() => {
     if (currentTab === '1') {// card logon

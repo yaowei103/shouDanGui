@@ -65,7 +65,8 @@ export const mergeDetailData = (data: any[], mergeFromIndex: number) => {
     // 核对发票号和代码号，相同的记录合并
     if (
       expensesDetail.invoicecode === changeItemOcrDetail?.code &&
-      expensesDetail.invoicenumber === changeItemOcrDetail?.number
+      expensesDetail.invoicenumber === changeItemOcrDetail?.number &&
+      !item.remark
       // expensesDetail.amount === ocrDetail?.total &&
       // Object.keys(ocrDetail).length <= 0
     ) {

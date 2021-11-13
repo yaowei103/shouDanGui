@@ -17,18 +17,25 @@ export const openPIDC: any = async (pidc: any, maxTimes: any | undefined = 5) =>
   }
 }
 
-export const getStatusPIDC: any = async (pidc: any, maxTimes: any | undefined = 5) => {
+export const getStatusPIDC: any = async (pidc: any) => {
   var result = await pidc.getStatus();
   console.log('获取状态：', result);
-  if (result.result == 0) {
+  if (result.result === 0 && result.status_code === 0) {
     console.log("获取状态成功");
     return result;
-  } else if (maxTimes <= 0 && result.result !== 0) {
-    console.log('获取状态发生错误，已经尝试10次');
-    return result;
+  } else if (result.result === 0 && result.status_code !== 0 ) {
+    console.log('获取状态成功，状态不正常');
+    await resetPIDC(pidc);
+    const statusRes = await pidc.getStatus();
+    return statusRes;
+  } else if (result.result !== 0) {
+    console.log('获取状态失败，打开设备');
+    await openPIDC(pidc);
+    const statusRes = await pidc.getStatus();
+    return statusRes;
   } else {
     console.log("getStatusPIDC()发生错误:" + result.message);
-    return await getStatusPIDC(pidc, maxTimes - 1);
+    return await getStatusPIDC(pidc);
   }
 }
 

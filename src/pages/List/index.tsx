@@ -12,13 +12,22 @@ const List: FC = () => {
   const [dataList, setDataList] = useState(dataSource);
   const [showLoading, setShowLoading] = useState(true);
   const [tipVisible, setTipVisible] = useState(false);
+  const [tipMsg, setTipMsg] = useState('');
+
+  const user = history.location.state?.user;
 
   const getDataList = async () => {
-    const res = await getList(history.location.state?.user?.empcode);
+    const res = await getList(user?.empcode);
     if (res?.code === 200) {
-      setDataList(res.data.atreturn.length ? res.data.atreturn : dataSource);
+      if (res.data.atreturn.length) {
+        setDataList(res.data.atreturn);
+      } else {
+        setTipVisible(true);
+        setTipMsg('该用户无可报销单据，请重新登录！');
+      }
     } else {
       setTipVisible(true);
+      setTipMsg('获取报销列表失败，请重新登录！');
       message.error('列表请求错误!');
     }
     setShowLoading(false);
@@ -101,11 +110,14 @@ const List: FC = () => {
         <div className={styles.header}>纳铁福智能收单柜</div>
         <div className={styles.body}>
           <div className={styles.userInfo}>
-            <div className={styles.infoItem}>姓名：<span className={styles.infoVal}>{emplyeeName}</span></div>
-            <div className={styles.infoItem}>工号：<span className={styles.infoVal}>{emplyeeId}</span></div>
+            <div className={styles.infoItem}>姓名：<span className={styles.infoVal}>{user?.cnname || '-'}</span></div>
+            <div className={styles.infoItem}>工号：<span className={styles.infoVal}>{user?.empcode || '-'}</span></div>
           </div>
           <div className={styles.table}>
             {renderTable()}
+          </div>
+          <div className={styles.bottomBtn}>
+            <Button type="primary" className={styles.btn} onClick={handleGoToLononpage} size="middle">退出登录</Button>
           </div>
         </div>
         <div className={styles.footer}>@纳铁福版权所有</div>
@@ -126,7 +138,7 @@ const List: FC = () => {
         centered // 垂直居中
       >
         <p className={styles.imageModalContainer} id="modalImgContainerId">
-          获取报销列表失败，请重新登录！
+          {tipMsg}
         </p>
         <div className={styles.imgModalBtnContainer}>
           <Button type="primary" className={styles.btn} onClick={handleGoToLononpage} size="middle">确定，退出登录</Button>
