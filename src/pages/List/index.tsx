@@ -41,18 +41,20 @@ const List: FC = () => {
       title: '单据号',
       dataIndex: 'billno',
       key: 'billno',
-      width: 120,
+      width: 200,
     },
     {
       title: '报销金额',
       dataIndex: 'expmoney',
       key: 'expmoney',
+      width: 150,
     },
     {
       title: '名称',
-      width: 250,
+      width: 200,
       dataIndex: 'name',
       key: 'name',
+      ellipsis: true,
     },
     {
       title: '发票金额',

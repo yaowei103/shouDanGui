@@ -33,7 +33,7 @@ const Detail: FC = () => {
 
   // const imgEle = useRef('modalImg');
 
-  const modalMsgInit = '请将单据整理好，带有二维码的封面放在第一页，然后封面朝上放入收单柜。';
+  const modalMsgInit = '请将单据整理好，带有二维码的封面放在第一页，然后封面朝下放入收单柜。';
   const [modalMsg, setModalMsg] = useState(modalMsgInit)
 
 
@@ -51,8 +51,8 @@ const Detail: FC = () => {
   useEffect(() => {
     setTimeout(() => {
       const ele: any = document.getElementById('modalImgId');
-      const width = ele && ele.width;
-      const height = ele && ele.height;
+      const width = ele?.width || 0;
+      const height = ele?.height || 0;
       if (ele) {
         drag(ele, { l: -width * 0.8, r: width * 0.9, t: -height * 0.8, b: height * 1.4 });
       }
@@ -188,6 +188,10 @@ const Detail: FC = () => {
   };
 
   const handleCancelAndOutpaper = async () => {
+    if (confirmLoading) {
+      return;
+    }
+    setConfirmLoading(true);
     console.log('Clicked cancel button');
     const outResult = await outAndResore(ist);
     if (outResult.result === 0) {
@@ -196,8 +200,9 @@ const Detail: FC = () => {
       handleGoToLogonpage();
     } else {
       // message.error('退出文件失败，请重新退出');
-      resetDevice(ist);
+      await resetDevice(ist);
     }
+    setConfirmLoading(false);
   };
 
   const handleGoToListpage = () => {
@@ -434,17 +439,17 @@ const Detail: FC = () => {
         title="提示"
         width={720}
         visible={visible}
-        onOk={handleModalOk}
-        confirmLoading={confirmLoading}
-        onCancel={handleCancelAndOutpaper}
         closable={false} // 右上角关闭按钮
-        okText="确定，开始识别单据"
-        cancelText="取消，退出登录"
-        cancelButtonProps={{
-          disabled: confirmLoading
-        }}
         maskClosable={false} // 点击蒙层关闭
         centered // 垂直居中
+        footer={[
+          <Button key="back" type="default" disabled={confirmLoading} onClick={handleCancelAndOutpaper}>
+            取消，退出登录
+          </Button>,
+          <Button key="submit" type="primary" disabled={confirmLoading} loading={confirmLoading} onClick={handleModalOk}>
+            确定，开始识别单据
+          </Button>,
+        ]}
       >
         <p className={styles.tipContent}>
           <img src={icon} />
@@ -464,7 +469,7 @@ const Detail: FC = () => {
         footer={false}
       >
         <p className={styles.imageModalContainer} id="modalImgContainerId">
-          <img id="modalImgId" src={currentImg} className={styles.modalImg} style={{ transform: `rotate(${rotate}deg)`, width: `${currentWidth ? `${currentWidth}px` : 'auto'}` }} />
+          <img id="modalImgId" src={currentImg} className={styles.modalImg} style={{ transform: `rotate(${rotate}deg)`, width: `${currentWidth ? `${currentWidth}px` : '100%'}` }} />
         </p>
         <div className={styles.imgModalBtnContainer}>
           <Button type="primary" className={styles.btn} onClick={handleBiggerClick} size="middle">放大</Button>
