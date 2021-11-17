@@ -41,7 +41,7 @@ const List: FC = () => {
       title: '单据号',
       dataIndex: 'billno',
       key: 'billno',
-      width: 200,
+      width: 220,
     },
     {
       title: '报销金额',
@@ -51,24 +51,26 @@ const List: FC = () => {
     },
     {
       title: '名称',
-      width: 200,
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'col1',
+      key: 'col1',
       ellipsis: true,
     },
     {
       title: '发票金额',
       dataIndex: 'invmoney',
+      width: 150,
       key: 'invmoney',
     },
     {
       title: '申请日期',
+      width: 170,
       dataIndex: 'reqdate',
       key: 'reqdate',
     },
     {
       title: '发票数量',
       dataIndex: 'invnums',
+      width: 150,
       key: 'invnums',
     },
     {
@@ -77,7 +79,7 @@ const List: FC = () => {
       key: 'id',
       render: (text: any, record: any, index: number) => {
         return (
-          <Button type="primary" onClick={() => { handleTableRowClick(record); }} size="middle" className="login-form-button">
+          <Button type="primary" onClick={() => { handleTableRowClick(record); }} size="large" className="login-form-button">
             投递单据
           </Button>
         );
@@ -93,6 +95,7 @@ const List: FC = () => {
       <Table
         rowKey={(record) => record.billno}
         dataSource={dataList}
+        bordered
         columns={columns}
         pagination={false}
         scroll={{ x: 'max-content', y: 765 }} />
@@ -119,7 +122,7 @@ const List: FC = () => {
             {renderTable()}
           </div>
           <div className={styles.bottomBtn}>
-            <Button type="primary" className={styles.btn} onClick={handleGoToLononpage} size="middle">退出登录</Button>
+            <Button type="primary" className={styles.btn} onClick={handleGoToLononpage} size="large">退出登录</Button>
           </div>
         </div>
         <div className={styles.footer}>@纳铁福版权所有</div>
@@ -129,12 +132,12 @@ const List: FC = () => {
         title="提示"
         width={720}
         visible={tipVisible}
-        onOk={handleGoToLononpage}
+        // onOk={handleGoToLononpage}
         // confirmLoading={confirmLoading}
         // onCancel={handleModalCancel}
         closable={false} // 右上角关闭按钮
-        okText="确定，退出登录"
-        cancelText={''}
+        // okText="确定，退出登录"
+        // cancelText={''}
         maskClosable={false} // 点击蒙层关闭
         footer={false}
         centered // 垂直居中
@@ -143,7 +146,7 @@ const List: FC = () => {
           {tipMsg}
         </p>
         <div className={styles.imgModalBtnContainer}>
-          <Button type="primary" className={styles.btn} onClick={handleGoToLononpage} size="middle">确定，退出登录</Button>
+          <Button type="primary" className={styles.btn} onClick={handleGoToLononpage} size="large">确定，退出登录</Button>
         </div>
       </Modal>
     </>

@@ -26,6 +26,22 @@
   background: #f2f2f2;
 }
 
+@keyframes mymove {
+  0% {top: -20px;}
+  25% {top: -10px;}
+  50% {top: 0px;}
+  75% {top: 10px;}
+  100% {top: 15px;}
+}
+
+@-webkit-keyframes mymove {
+  0% {top: -20px;}
+  25% {top: -10px;}
+  50% {top: 0px;}
+  75% {top: 10px;}
+  100% {top: 15px;}
+}
+
 
 .tipContent {
   min-height: 250px;
@@ -36,6 +52,14 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  .tipImg {
+    position: relative;
+    animation:mymove 1s infinite;
+    -webkit-animation:mymove 1s infinite;
+  }
+  .tipP {
+    width: 380px;
+  }
 }
 
 .modalIcon {

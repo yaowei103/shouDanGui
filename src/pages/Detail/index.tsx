@@ -22,6 +22,8 @@ const Detail: FC = () => {
   const [visible, setVisible] = useState(true);
   const [submitDisable, setSubmitDisable] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [defaultWidth, setDefaultWidth] = useState('auto');
+  const [defaultHeight, setDefaultHeight] = useState('auto');
 
   const history: any = useHistory();
   // 硬件对象
@@ -46,6 +48,20 @@ const Detail: FC = () => {
     dataSource: [],
     sendExpenseError: {},
   });
+
+  // 初始化图片大小
+  useEffect(() => {
+    const ele: any = document.getElementById('modalImgId');
+    const width = ele?.width || 0;
+    const height = ele?.height || 0;
+    if (width >= height) {
+      setDefaultWidth('100%');
+      setDefaultHeight('auto');
+    } else {
+      setDefaultWidth('auto');
+      setDefaultHeight('100%');
+    }
+  }, [imageModalVisible]);
 
   // 图片预览
   useEffect(() => {
@@ -264,6 +280,7 @@ const Detail: FC = () => {
     const ele = document.getElementById('modalImgId');
     const width = ele && ele.clientWidth || 0;
     setCurrentWidth(width * 1.05);
+    setDefaultHeight('auto');
   };
 
   // 缩小按钮
@@ -271,6 +288,7 @@ const Detail: FC = () => {
     const ele = document.getElementById('modalImgId');
     const width = ele && ele.clientWidth || 0;
     setCurrentWidth(width * 0.95);
+    setDefaultHeight('auto');
   };
 
   const handleRotateClick = () => {
@@ -283,17 +301,19 @@ const Detail: FC = () => {
         rowKey={(record) => record?.id}
         dataSource={state.dataSource}
         pagination={false}
+        bordered
         scroll={{ x: 'max-content', y: 510 }}
         rowClassName={() => 'editable-row'}
       >
-        <ColumnGroup title="图片">
-          <Column width={120} dataIndex="imagePath" key="id" render={(text: any, record: any, index: number) => {
+        <ColumnGroup title="">
+          <Column width={120} title="图片" dataIndex="imagePath" key="id" render={(text: any, record: any, index: number) => {
             if (
               record.expensesDetail?.invoicenumber === record.ocrDetail?.number &&
               record.expensesDetail?.invoicecode === record.ocrDetail?.code ||
               Object.keys(record.expensesDetail || {}).length <= 0
             ) {
               return <img
+                className={styles.listImg}
                 onClick={() => { handleImgClick(record.imagePath || imgPlaceholder) }}
                 src={record.imagePath || imgPlaceholder}
                 title="图片"
@@ -303,8 +323,9 @@ const Detail: FC = () => {
             }
           }} />
         </ColumnGroup>
-        <ColumnGroup title="流水号">
+        <ColumnGroup title="">
           <Column
+            title="流水号"
             key="id"
             render={(text: any, record: any, index: number) => {
               return record.expensesDetail?.invoiceno || '-';
@@ -332,7 +353,7 @@ const Detail: FC = () => {
             render={(text: any, record: any, index: number) => record.expensesDetail?.amount || '-'}
           />
         </ColumnGroup>
-        <ColumnGroup title="收单柜">
+        <ColumnGroup title="收单柜" >
           <Column
             title="发票号"
             width={150}
@@ -387,6 +408,8 @@ const Detail: FC = () => {
               </div>;
             }}
           />
+        </ColumnGroup>
+        <ColumnGroup title="">
           <Column
             title="备注"
             width={150}
@@ -401,7 +424,7 @@ const Detail: FC = () => {
             key="id"
             render={(text: any, record: any, index: number) => {
               if (!record.expensesDetail?.invoicecode || !record.expensesDetail?.invoiceno || !record.expensesDetail?.amount) {
-                return <Button type="text" className={styles.delBtn} onClick={() => { handleDel(index); }} size="middle">删除</Button>
+                return <Button type="text" className={styles.delBtn} onClick={() => { handleDel(index); }} size="large">删除</Button>
               }
             }}
           />
@@ -424,7 +447,7 @@ const Detail: FC = () => {
           {renderTable()}
         </div>
         <div className={styles.btnContainer}>
-          <Button type="default" onClick={handleCancelAndOutpaper} size="large" disabled={submitDisable}>
+          <Button className={styles.pageBtn} type="default" onClick={handleCancelAndOutpaper} size="large" disabled={submitDisable}>
             取消并退出单据
           </Button>
           <Button className={styles.pageBtn} type="primary" disabled={submitDisable} onClick={handleSubmit} size="large">
@@ -443,17 +466,17 @@ const Detail: FC = () => {
         maskClosable={false} // 点击蒙层关闭
         centered // 垂直居中
         footer={[
-          <Button key="back" type="default" disabled={confirmLoading} onClick={handleCancelAndOutpaper}>
+          <Button key="back" className={styles.tipBtn} type="default" disabled={confirmLoading} onClick={handleCancelAndOutpaper} size="large">
             取消，退出登录
           </Button>,
-          <Button key="submit" type="primary" disabled={confirmLoading} loading={confirmLoading} onClick={handleModalOk}>
+          <Button key="submit" className={styles.tipBtn} type="primary" disabled={confirmLoading} loading={confirmLoading} onClick={handleModalOk} size="large">
             确定，开始识别单据
           </Button>,
         ]}
       >
         <p className={styles.tipContent}>
-          <img src={icon} />
-          {modalMsg}
+          <img className={styles.tipImg} src={icon} />
+          <p className={styles.tipP}>{modalMsg}</p>
         </p>
       </Modal>
       {/* 图片预览 */}
@@ -461,7 +484,7 @@ const Detail: FC = () => {
         className={styles.imageModal}
         title=""
         visible={imageModalVisible}
-        width={800}
+        width={1200}
         onCancel={handleImgModelHide}
         closable={true} // 右上角关闭按钮
         maskClosable={true} // 点击蒙层关闭
@@ -469,12 +492,16 @@ const Detail: FC = () => {
         footer={false}
       >
         <p className={styles.imageModalContainer} id="modalImgContainerId">
-          <img id="modalImgId" src={currentImg} className={styles.modalImg} style={{ transform: `rotate(${rotate}deg)`, width: `${currentWidth ? `${currentWidth}px` : '100%'}` }} />
+          <img
+            id="modalImgId"
+            src={currentImg}
+            className={styles.modalImg}
+            style={{ transform: `rotate(${rotate}deg)`, width: `${currentWidth ? `${currentWidth}px` : defaultWidth}`, height: defaultHeight }} />
         </p>
         <div className={styles.imgModalBtnContainer}>
-          <Button type="primary" className={styles.btn} onClick={handleBiggerClick} size="middle">放大</Button>
-          <Button type="primary" className={styles.btn} onClick={handleSmallerClick} size="middle">缩小</Button>
-          <Button type="primary" className={styles.btn} onClick={handleRotateClick} size="middle">旋转</Button>
+          <Button type="primary" className={styles.btn} onClick={handleBiggerClick} size="large">放大</Button>
+          <Button type="primary" className={styles.btn} onClick={handleSmallerClick} size="large">缩小</Button>
+          <Button type="primary" className={styles.btn} onClick={handleRotateClick} size="large">旋转</Button>
         </div>
       </Modal>
       {/* 提交成功 */}
@@ -483,15 +510,15 @@ const Detail: FC = () => {
         title="提示"
         width={720}
         visible={success}
-        onOk={handleGoToListpage}
-        // confirmLoading={confirmLoading}
-        onCancel={handleGoToLogonpage}
         closable={false} // 右上角关闭按钮
-        okText="确定，继续报销"
-        cancelText="取消，退出登录"
-        cancelButtonProps={{
-          disabled: confirmLoading
-        }}
+        footer={[
+          <Button key="back" className={styles.tipBtn} type="default" disabled={confirmLoading} onClick={handleGoToLogonpage} size="large">
+            取消，退出登录
+          </Button>,
+          <Button key="submit" className={styles.tipBtn} type="primary" disabled={confirmLoading} loading={confirmLoading} onClick={handleGoToListpage} size="large">
+            确定，继续报销
+          </Button>,
+        ]}
         maskClosable={false} // 点击蒙层关闭
         centered // 垂直居中
       >

@@ -62,13 +62,21 @@ html,body{
   width: 100%;
 }
 
-.ant-table-thead > tr > .ant-table-cell, .ant-table-tbody > tr > .ant-table-cell{
+.ant-table-thead > tr > .ant-table-cell{
   vertical-align: middle;
   text-align: center;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.ant-table-tbody > tr > .ant-table-cell{
+  vertical-align: middle;
+  text-align: center;
+  font-size: 20px;
 }
 
 .ant-table-cell img {
-  width: 160px;
+  width: 100%;
 }
 
 .editable-cell {
@@ -97,6 +105,14 @@ html,body{
 .ant-btn-primary {
   border-color: #4f7693;
   background-color: #4f7693;
+}
+
+.ant-modal-close-x {
+  width: 70px;
+  height: 70px;
+  background: #e7e7e785;
+  line-height: 70px;
+  font-size: 25px;
 }
 
 /* .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
