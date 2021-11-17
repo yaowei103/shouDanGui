@@ -332,9 +332,10 @@ const Detail: FC = () => {
             }}
           />
         </ColumnGroup>
-        <ColumnGroup title="报销系统">
+        <ColumnGroup title="报销系统" className={styles.colorA}>
           <Column
             title="发票号"
+            className={styles.colorA}
             key="id"
             render={(text: any, record: any, index: number) => {
               return record.expensesDetail?.invoicenumber || '-';
@@ -342,6 +343,7 @@ const Detail: FC = () => {
           />
           <Column
             title="代码"
+            className={styles.colorA}
             key="id"
             render={(text: any, record: any, index: number) => {
               return record.expensesDetail?.invoicecode || '-';
@@ -349,13 +351,15 @@ const Detail: FC = () => {
           />
           <Column
             title="金额"
+            className={styles.colorA}
             key="id"
             render={(text: any, record: any, index: number) => record.expensesDetail?.amount || '-'}
           />
         </ColumnGroup>
-        <ColumnGroup title="收单柜" >
+        <ColumnGroup title="收单柜" className={styles.colorB}>
           <Column
             title="发票号"
+            className={styles.colorB}
             width={150}
             key="id"
             render={(text: any, record: any, index: number) => {
@@ -374,6 +378,7 @@ const Detail: FC = () => {
           />
           <Column
             title="代码"
+            className={styles.colorB}
             width={150}
             key="id"
             render={(text: any, record: any, index: number) => {
@@ -392,6 +397,7 @@ const Detail: FC = () => {
           />
           <Column
             title="金额"
+            className={styles.colorB}
             width={150}
             key="id"
             render={(text: any, record: any, index: number) => {

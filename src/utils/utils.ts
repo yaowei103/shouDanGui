@@ -9,46 +9,73 @@ export const drag = (obj: any, sent: any) => {
   var t = sent.t || 0;
   var b = sent.b || dmH - obj.offsetHeight;
   // var n = sent.n || 10;
+  function touchMove (ev: any, sentX: any, sentY: any) {
+    var oEvent = ev || event;
+    console.log('mousemove');
+    var slideLeft = oEvent.clientX - sentX;
+    var slideTop = oEvent.clientY - sentY;
 
-  obj.onmousedown = function (ev: any) {
+    if (slideLeft <= l) {
+      slideLeft = l;
+    }
+    if (slideLeft >= r) {
+      slideLeft = r;
+    }
+    if (slideTop <= t) {
+      slideTop = t;
+    }
+    if (slideTop >= b) {
+      slideTop = b;
+    }
+
+    obj.style.left = slideLeft + 'px';
+    obj.style.top = slideTop + 'px';
+
+    // document.getElementById('posTop').innerHTML = slideTop;
+    // document.getElementById('posLeft').innerHTML = slideLeft;
+
+  };
+
+  function touchEnd () {
+    document.onmousemove = null;
+    document.onmouseup = null;
+  }
+
+  function touchStart (ev: any) {
     console.log('mousedown');
     var oEvent = ev || event;
     var sentX = oEvent.clientX - obj.offsetLeft;
     var sentY = oEvent.clientY - obj.offsetTop;
 
-    document.onmousemove = function (ev) {
-      var oEvent = ev || event;
-      console.log('mousemove');
-      var slideLeft = oEvent.clientX - sentX;
-      var slideTop = oEvent.clientY - sentY;
-
-      if (slideLeft <= l) {
-        slideLeft = l;
-      }
-      if (slideLeft >= r) {
-        slideLeft = r;
-      }
-      if (slideTop <= t) {
-        slideTop = t;
-      }
-      if (slideTop >= b) {
-        slideTop = b;
-      }
-
-      obj.style.left = slideLeft + 'px';
-      obj.style.top = slideTop + 'px';
-
-      // document.getElementById('posTop').innerHTML = slideTop;
-      // document.getElementById('posLeft').innerHTML = slideLeft;
-
+    document.onmousemove = function (e) {
+      console.log('onmousemove');
+      return touchMove(e, sentX, sentY);
     };
-    document.onmouseup = function () {
-      console.log('mouseup');
-      document.onmousemove = null;
-      document.onmouseup = null;
-    }
+    document.onmouseup =  function (e) {
+      console.log('onmouseup');
+      return touchEnd();
+    };
+
+    // 兼容手机端
+    document.ontouchmove = function (e: any) {
+      console.log('ontouchmove');
+      return touchMove(e, sentX, sentY);
+    };
+    document.ontouchend = function (e: any) {
+      console.log('ontouchend');
+      return touchMove(e, sentX, sentY);
+    };
 
     return false;
+  }
+
+  obj.onmousedown = function (e: any){
+    console.log('onmousedown');
+    return touchStart(e);
+  }
+  obj.ontouchstart = function (e: any){
+    console.log('ontouchstart');
+    return touchStart(e);
   }
 }
 
