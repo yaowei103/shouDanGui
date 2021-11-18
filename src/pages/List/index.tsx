@@ -19,11 +19,15 @@ const List: FC = () => {
   const getDataList = async () => {
     const res = await getList(user?.empcode);
     if (res?.code === 200) {
-      if (res.data.atreturn.length) {
+      if (res?.data?.atreturn?.length) {
         setDataList(res.data.atreturn);
-      } else {
+      } else if (res?.data?.atreturn?.length === 0) {
         setTipVisible(true);
         setTipMsg('该用户无可报销单据，请重新登录！');
+      } else {
+        setTipVisible(true);
+        setTipMsg(res?.data?.message || '获取报销列表失败，请重新登录！');
+        message.error('列表请求错误!');
       }
     } else {
       setTipVisible(true);

@@ -125,7 +125,7 @@ const Detail: FC = () => {
     setSubmitDisable(true);
     const submitResult = await submitData(reqBody);
     if (submitResult.code === 200) {
-      if (submitResult.data) {
+      if (submitResult?.data === true) {
         const retainResult = await retain(ist);
         if (retainResult.result === 0) {
           // message.success('提交成功');
@@ -190,10 +190,17 @@ const Detail: FC = () => {
       // 扫描成功，通过api获取识别结果
       const sendImageResult: any = await sendImage(empcode, sid, billno, scanPaperResult);
       console.log('识别图片完成：', sendImageResult);
-      if (sendImageResult?.code === 200 && sendImageResult.data?.compareDataList.length > 0) {
-        setConfirmLoading(false);
+      console.log('识别图片完成, code：', sendImageResult.code);
+      if (sendImageResult?.code === 200 && sendImageResult.data?.compareDataList?.length > 0) {
         setVisible(false);
+        setConfirmLoading(false);
         handleDetailData(sendImageResult.data);
+      } else if (sendImageResult.data?.code === 501) {
+        setConfirmLoading(false);
+        setModalMsg(`${sendImageResult?.data?.message || '单据号码不匹配'}，请退出单据并重新核实，如有疑问请联系管理员！`);
+      } else if (sendImageResult.data?.message) {
+        setConfirmLoading(false);
+        setModalMsg(`${sendImageResult?.data?.message || '服务器错误内部'}，请退出单据并重新核实，如有疑问请联系管理员！`);
       } else {
         setConfirmLoading(false);
         setModalMsg(`${sendImageResult?.message || '服务器内部错误'}，请将单据整理好，重新放入扫描窗口，并点击确定重新扫描！`);

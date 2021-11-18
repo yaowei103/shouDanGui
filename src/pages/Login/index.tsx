@@ -186,7 +186,7 @@ const Login: FC = () => {
     const { code, data } = result;
     setShowLoading(false);
     if (code === 200 && data?.empcode) {
-      console.log('刷卡登录成功');
+      console.log('手机号登录成功');
       message.success('登录成功', result);
       history.push(`/list`, {
         user: data
