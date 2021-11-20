@@ -86,10 +86,13 @@ const Login: FC = () => {
     }
   };
 
-  // useEffect(() => {
-  //   openPIDC(kidc);
-  //   console.log('open ipdc');
-  // }, []);
+  useEffect(() => {
+    // 获取机器id
+    console.log('获取机器id');
+    const search = window?.location?.search;
+    console.log('获取机器id：', search);
+    // const 
+  }, []);
 
   useEffect(() => {
     if (currentTab === '1') {// card logon
@@ -249,7 +252,7 @@ const Login: FC = () => {
         </Form.Item>
         <Form.Item
           name="phoneMsg"
-          rules={[{ required: true, message: '请输入手机验证码!' }]}
+          rules={[{ required: true, message: '手机验证码!' }]}
         >
           <Row gutter={24}>
             <Col span={15}>

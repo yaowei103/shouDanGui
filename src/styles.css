@@ -38,19 +38,35 @@ html,body{
 }
 
 .ant-tabs-tab + .ant-tabs-tab{
-  margin: 0 62px
+  margin: 0 90px;
+  padding: 20px 0;
 }
-.ant-tabs-tab{
-  margin: 0 62px
+
+.ant-tabs-tab {
+  margin: 0 90px;
+  padding: 20px 0;
 }
 
 .ant-tabs-tab .ant-tabs-tab-btn {
-  font-size: 18px;
+  font-size: 30px;
   color: #1166c0;
 }
 
 .login-form {
-  width: 320px;
+  width: 400px;
+}
+.login-form .ant-input-lg {
+  font-size: 22px;
+}
+.login-form .ant-form-item {
+  margin: 0 0 35px;
+}
+.login-form .ant-btn-lg {
+  height: 50px;
+  font-size: 20px;
+}
+.login-form .ant-input-affix-wrapper-lg {
+  padding: 7.5px 11px;
 }
 .login-form-forgot {
   float: right;
@@ -65,7 +81,7 @@ html,body{
 .ant-table-thead > tr > .ant-table-cell{
   vertical-align: middle;
   text-align: center;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 600;
 }
 
@@ -98,8 +114,17 @@ html,body{
   border: 1px solid #434343;
 }
 
+.ant-modal-title {
+  font-size: 25px;
+}
 .ant-modal-content{
   overflow: hidden;
+}
+
+.ant-modal-footer {
+  padding: 30px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .ant-btn-primary {

@@ -24,6 +24,9 @@ const List: FC = () => {
       } else if (res?.data?.atreturn?.length === 0) {
         setTipVisible(true);
         setTipMsg('该用户无可报销单据，请重新登录！');
+      } else if (res.data.code === 502) {
+        setTipVisible(true);
+        setTipMsg('OA服务异常，请联系管理员！');
       } else {
         setTipVisible(true);
         setTipMsg(res?.data?.message || '获取报销列表失败，请重新登录！');
@@ -45,7 +48,7 @@ const List: FC = () => {
       title: '单据号',
       dataIndex: 'billno',
       key: 'billno',
-      width: 220,
+      width: 240,
     },
     {
       title: '报销金额',

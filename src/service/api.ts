@@ -54,15 +54,7 @@ export const submitData = (data: any) => {
   });
 }
 
-
-// export const getDetail = (empId: string, orderId: string, orderNum: string) => {
-//   return request(`/expense?empId=${empId}&orderId=${orderId}&orderNum=${orderNum}`, {
-//     method: 'GET',
-//     headers: {
-//       'Content-Type': 'application/x-www-form-urlencoded',
-//     }
-//   });
-
+// 管理页面登录
 export const manageLogon = (req: any) => {
   return request(`/manage/logon`, {
     method: 'POST',
@@ -74,11 +66,32 @@ export const manageLogon = (req: any) => {
   });
 };
 
+// 管理页面list
 export const getManageList = (req: any) => {
-  return request(`/ticket?orderNum=${req}`, {
+  return request(`/manage/ticket?orderNum=${req}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     }
+  })
+}
+
+// 发送在线消息
+export const sendOnlineMsg = () => {
+  return request('/online', {
+    method: 'GET',
+    header: {
+      'Content-Type': 'application/json',
+    },
+  })
+}
+
+// 满仓邮件提醒
+export const sendFullHouseMail = (machineId: string) => {
+  return request(`/manage/mail?machineId=${machineId}`, {
+    method: 'GET',
+    header: {
+      'Content-Type': 'application/json',
+    },
   })
 }

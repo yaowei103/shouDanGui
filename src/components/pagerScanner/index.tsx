@@ -201,7 +201,7 @@ export const outAndResore: any = async (scr: any) => {
           resolve(restore(scr));
         } else if (getSensorStatusResult.result === 0 && getSensorStatusResult?.sensor?.sensor13 === 0) {
           // 排至单元卡纸
-          message.error('排纸单元卡纸，请处理！');
+          message.error('排纸单元卡纸，请联系管理员处理！');
           await unlock(scr);
         }
       }, 3000)

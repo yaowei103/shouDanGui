@@ -24,6 +24,7 @@ const Detail: FC = () => {
   const [success, setSuccess] = useState(false);
   const [defaultWidth, setDefaultWidth] = useState('auto');
   const [defaultHeight, setDefaultHeight] = useState('auto');
+  const [confirmDisabled, setConfirmDisabled] = useState(false);
 
   const history: any = useHistory();
   // 硬件对象
@@ -132,6 +133,9 @@ const Detail: FC = () => {
           // window.location.href = process.env.NODE_ENV === 'development' ? '/' : '/shouDanGui/';
           setSuccess(true);
         }
+      } else if (submitResult.data.code === 502) {
+        message.error('OA服务异常，正在退出单据，请收好单据并联系管理员！');
+        handleCancelAndOutpaper();
       } else {
         message.error('单据提交异常，正在退出单据，请收好单据并联系管理员！');
         handleCancelAndOutpaper();
@@ -165,9 +169,10 @@ const Detail: FC = () => {
       setModalMsg('扫描完成，正在识别您的单据，请耐心等待！');
       console.log('扫描完成，正在识别您的单据，请耐心等待！');
       return imgList;
-    } else if (getStatusAndScanResult?.result === -10) {
+    } else if (getStatusAndScanResult?.result === -10 || (getStatusAndScanResult?.result === -1 && getStatusAndScanResult?.feeder === undefined ) || getStatusAndScanResult?.result === 20) {
       // message.error('扫描过程卡纸，请解决卡纸');
-      setModalMsg('扫描过程卡纸，请解决卡纸');
+      setConfirmDisabled(true);
+      setModalMsg('扫描过程卡纸，请联系管理员解决卡纸');
       return [];
     } else {
       message.error('扫描出错');
@@ -197,7 +202,16 @@ const Detail: FC = () => {
         handleDetailData(sendImageResult.data);
       } else if (sendImageResult.data?.code === 501) {
         setConfirmLoading(false);
+        setConfirmDisabled(true);
         setModalMsg(`${sendImageResult?.data?.message || '单据号码不匹配'}，请退出单据并重新核实，如有疑问请联系管理员！`);
+      } else if (sendImageResult.data.code === 502) {
+        setConfirmLoading(false);
+        setConfirmDisabled(true);
+        setModalMsg(`OA服务异常，请退出单据并联系管理员！`);
+      } else if (sendImageResult.data.code === 503) {
+        setConfirmLoading(false);
+        setConfirmDisabled(true);
+        setModalMsg(`OCR服务异常，请退出单据并联系管理员！`);
       } else if (sendImageResult.data?.message) {
         setConfirmLoading(false);
         setModalMsg(`${sendImageResult?.data?.message || '服务器错误内部'}，请退出单据并重新核实，如有疑问请联系管理员！`);
@@ -473,7 +487,7 @@ const Detail: FC = () => {
       <Modal
         className={styles.modalBody}
         title="提示"
-        width={720}
+        width={900}
         visible={visible}
         closable={false} // 右上角关闭按钮
         maskClosable={false} // 点击蒙层关闭
@@ -482,7 +496,7 @@ const Detail: FC = () => {
           <Button key="back" className={styles.tipBtn} type="default" disabled={confirmLoading} onClick={handleCancelAndOutpaper} size="large">
             取消，退出登录
           </Button>,
-          <Button key="submit" className={styles.tipBtn} type="primary" disabled={confirmLoading} loading={confirmLoading} onClick={handleModalOk} size="large">
+          <Button key="submit" className={styles.tipBtn} type="primary" disabled={confirmLoading || confirmDisabled} loading={confirmLoading} onClick={handleModalOk} size="large">
             确定，开始识别单据
           </Button>,
         ]}
